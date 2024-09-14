@@ -5,13 +5,6 @@ from dotenv import load_dotenv
 from collections import deque
 from prompt_toolkit import print_formatted_text, HTML
 
-from prompt_toolkit.styles import Style
-
-style = Style.from_dict({
-    'aaa': '#ff0066',
-    'bbb': '#44ff00 italic',
-})
-
 
 load_dotenv()
 
@@ -23,7 +16,6 @@ MAX_HISTORY = 30
 chat_history = deque(maxlen=MAX_HISTORY)
 
 def complete(prompt):
-    # Include chat history in the messages
     messages = [
         {"role": "system", "content": "Please return the response using a plain text format (no markdown or code blocks or json or formatting unless specifically asked for)"},
     ]
@@ -36,7 +28,6 @@ def complete(prompt):
     )
     assistant_message = response.choices[0].message.content
     
-    # Add the new messages to chat history
     chat_history.append({"role": "user", "content": prompt})
     chat_history.append({"role": "assistant", "content": assistant_message})
     
@@ -46,15 +37,13 @@ def complete(prompt):
 def is_command(text):
     return text.strip().lower() in ['q', 'n', 'new', 'quit']
 
-# Create a custom history class that filters out commands we don't want to save
 class FilteredHistory(FileHistory):
+    # Don't store commands in history
     def store_string(self, string: str) -> None:
-        # Don't store 'q', 'n', or 'new' commands
         if not is_command(string):
                 super().store_string(string)
 
 def main():
-    # our_history = FileHistory(".example-history-file")
     
     our_history = FilteredHistory(".example-history-file")
     session = PromptSession(history=our_history)
