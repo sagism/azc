@@ -2,13 +2,18 @@
 
 Right now only supports OpenAI Completion API, but later will support more...
 
+Features:
+
+    - Command-line history
+    - Soon: Real chat (right now each prompt stands by itself)
+
 # Installation
 
     pip install chata
 
 # Running
 
-    % python chata.py
+    % az
     > how tall is the eifel tower?
     gpt-4o-mini: The Eiffel Tower is approximately 1,083 feet (330 meters) tall, including its antennas. The structure itself, without antennas, is about 1,063 feet (324 meters).
     > q
