@@ -1,14 +1,35 @@
-from prompt_toolkit import PromptSession
-from prompt_toolkit.history import FileHistory
+# from prompt_toolkit import PromptSession
+# from prompt_toolkit.history import FileHistory
 from openai import OpenAI
 from dotenv import load_dotenv
 from collections import deque
-from prompt_toolkit import print_formatted_text, HTML
+# from prompt_toolkit import print_formatted_text, HTML
+from rich.console import Console
+from rich.markdown import Markdown
+import readline
+import atexit
+import os
+
+histfile = os.path.join(os.path.expanduser("~"), ".chata_history")
+try:
+    readline.read_history_file(histfile)
+    readline.set_history_length(1000)
+except FileNotFoundError:
+    pass
+
+atexit.register(readline.write_history_file, histfile)
 
 
 load_dotenv()
 
 client = OpenAI()
+
+"""
+Note that at this point, I can either stream the response from the LLM, or I can print it all at once in markdown format,
+but I can't do both, it just does not work right as I need to clear the console and reprint the markdown for each chunk,
+and I have not figured out how to do that yet selectively
+"""
+console = Console()
 
 model = "gpt-4o-mini"
 
@@ -22,11 +43,19 @@ def complete(prompt):
     messages.extend(chat_history)
     messages.append({"role": "user", "content": prompt})
 
-    response = client.chat.completions.create(
+    stream = client.chat.completions.create(
         model=model,
-        messages=messages
+        messages=messages,
+        stream=True
     )
-    assistant_message = response.choices[0].message.content
+
+    assistant_message = ""
+    for chunk in stream:
+        content = chunk.choices[0].delta.content
+        if content is not None:
+            assistant_message += content
+            yield content
+
     
     chat_history.append({"role": "user", "content": prompt})
     chat_history.append({"role": "assistant", "content": assistant_message})
@@ -37,22 +66,45 @@ def complete(prompt):
 def is_command(text):
     return text.strip().lower() in ['q', 'n', 'new', 'quit']
 
-class FilteredHistory(FileHistory):
-    # Don't store commands in history
-    def store_string(self, string: str) -> None:
-        if not is_command(string):
-                super().store_string(string)
+# class FilteredHistory(FileHistory):
+#     # Don't store commands in history
+#     def store_string(self, string: str) -> None:
+#         if not is_command(string):
+#                 super().store_string(string)
+
+
+def print_markdown_stream(markdown_stream, gradual=False):
+    """Print a streaming markdown response in a formatted way."""
+    full_markdown = ""
+    for chunk in markdown_stream:
+        full_markdown += chunk
+
+        if gradual:
+            # Clear the console and reprint the full markdown
+            console.clear()
+            md = Markdown(full_markdown)
+            console.print(md)
+    
+    if not gradual:
+        console.print(Markdown(full_markdown))
+    console.print()
+
 
 def main():
     
-    our_history = FilteredHistory(".example-history-file")
-    session = PromptSession(history=our_history)
+    # our_history = FilteredHistory(".example-history-file")
+    # session = PromptSession(history=our_history)
+    do_print_markdown = True
+    gradual = False
 
     while True:
         try:
             user_message_count = sum(1 for msg in chat_history if msg["role"] == "user")
                 # text = session.prompt(f"{model} ({user_message_count}) > ")
-            text = session.prompt(HTML(f"<b><ansigray>{model}</ansigray></b> ({user_message_count+1}) > "))
+            # text = session.prompt(HTML(f"<b><ansigray>{model}</ansigray></b> ({user_message_count+1}) > "))
+            # console.print(f"[blue underline]{model}</ansigray></b> ({user_message_count+1}) > "))
+            # text = input()
+            text = console.input(f"[i]{model}[/i] [bold red]{user_message_count+1}[/] > ")
             if text.strip() in ["q", "quit"]:
                 break
 
@@ -61,17 +113,27 @@ def main():
 
             if text.strip() in ["n", "new"]:
                 chat_history.clear()
-                print("Chat history cleared.")
+                console.print("Chat history cleared.")
                 continue
 
-            response = complete(text)
-            print_formatted_text(HTML(f"<b><ansigray>{model}</ansigray></b>: <ansigreen>{response}</ansigreen>"))
+            # print_formatted_text(HTML(f"<b><ansigray>{model}</ansigray></b>: "), end="")
+            with console.status("Working..."):
+                console.print(f"[i cyan]{model}:[/]")
+                response = complete(text)
+
+                if (do_print_markdown):
+                    print_markdown_stream(response, gradual=gradual)
+                else:
+                    for chunk in response:
+                        console.print(f"{chunk}", end="")
+                    console.print()
+
         except KeyboardInterrupt:
             break
         except Exception as e:
-            print_formatted_text(HTML(f"<b><ansired>Error: {e}</ansired></b>"))
+            console.log(f"[red]Error: {e}[/]")
 
-    print("Bye!")
+    console.print("[green]Bye![/]")
 
 
 
