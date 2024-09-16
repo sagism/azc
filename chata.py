@@ -1,131 +1,216 @@
-# from prompt_toolkit import PromptSession
-# from prompt_toolkit.history import FileHistory
-from openai import OpenAI
+# chat_app.py
+
+import sys
+import os
+import shutil
+
 from dotenv import load_dotenv
-from collections import deque
-# from prompt_toolkit import print_formatted_text, HTML
 from rich.console import Console
 from rich.markdown import Markdown
-import readline
-import atexit
-import os
+from rich.panel import Panel
+from rich.align import Align
+from rich.live import Live
+from rich.box import Box
+from openai import OpenAI
+from prompt_toolkit import PromptSession
+from prompt_toolkit.patch_stdout import patch_stdout
+from prompt_toolkit.formatted_text import HTML
+from prompt_toolkit.history import FileHistory
+import readline # needed for prompt editing
 
-histfile = os.path.join(os.path.expanduser("~"), ".chata_history")
-try:
-    readline.read_history_file(histfile)
-    readline.set_history_length(1000)
-except FileNotFoundError:
-    pass
+"""
+This is a chat app that allows you to chat with multiple providers
 
-atexit.register(readline.write_history_file, histfile)
+You need to configure providers in the .env file
 
+it supports:
+
+- openai
+- ollama
+- anthropic
+
+use the 'p' key to change providers
+use the 'q' key to quit
+
+"""
+
+
+
+# An empty box border makes it easier to copy and paste the code.
+EMPTY: Box = Box(
+    "    \n"
+    "    \n"
+    "    \n"
+    "    \n"
+    "    \n"
+    "    \n"
+    "    \n"
+    "    \n",
+    ascii=True,
+)
 
 load_dotenv()
 
-client = OpenAI()
-
-"""
-Note that at this point, I can either stream the response from the LLM, or I can print it all at once in markdown format,
-but I can't do both, it just does not work right as I need to clear the console and reprint the markdown for each chunk,
-and I have not figured out how to do that yet selectively
-"""
-
+# Initialize the console
 console = Console()
 
-# TODO: make this configurable
-model = "gpt-4o-mini"
+providers = []
+if 'OPENAI_API_KEY' in os.environ:
+    providers.append('openai')
+if 'OLLAMA_URL' in os.environ:
+    providers.append('ollama')
+if 'ANTHROPIC_API_KEY' in os.environ:
+    providers.append('anthropic')
 
-MAX_HISTORY = 30
-chat_history = deque(maxlen=MAX_HISTORY)
+console.print('providers:', providers)
 
-def complete(prompt):
-    messages = [
-        {"role": "system", "content": "Please return the response using a plain text format (no markdown or code blocks or json or formatting unless specifically asked for)"},
-    ]
-    messages.extend(chat_history)
-    messages.append({"role": "user", "content": prompt})
 
-    stream = client.chat.completions.create(
-        model=model,
-        messages=messages,
-        stream=True
-    )
+def provider_factory(provider_hint):
+    provider_found = False
 
-    assistant_message = ""
-    for chunk in stream:
-        content = chunk.choices[0].delta.content
-        if content is not None:
-            assistant_message += content
-            yield content
+    for provider_name in providers:
+        if provider_hint in provider_name:
+            provider_full_name = provider_name
+            provider_found = True
+            break
 
+    if not provider_found:
+        raise ValueError(f"Cannot find provider with <{provider_hint}>")
     
-    chat_history.append({"role": "user", "content": prompt})
-    chat_history.append({"role": "assistant", "content": assistant_message})
-    
-    return assistant_message
+    if provider_full_name == 'ollama':
+        model = "llama3.1:latest"
+        return OpenAI(
+            base_url=os.environ['OLLAMA_URL'],
+            api_key='ollama',  # required, but unused in your local setup
+        ), provider_full_name,model
+    elif provider_full_name == 'openai':
+        model = 'gpt-4o-mini'
+        return OpenAI(), provider_full_name, model
+    else:
+        raise ValueError(f"Invalid provider: {provider_full_name}")
 
 
-def is_command(text):
-    return text.strip().lower() in ['q', 'n', 'new', 'quit']
+def is_command(string: str) -> bool:
+    return string.strip().lower() in ('exit', 'quit', 'q', 'p', 'l', 'm', 'p', '')
+
+class FilteredHistory(FileHistory):
+    """
+    This class is a custom history class that filters out commands we don't want to save
+    """
+    def store_string(self, string: str) -> None:
+        if not is_command(string):
+                super().store_string(string)
+
+def primer():
+    columns, rows = shutil.get_terminal_size()
+    # single screen is better...
+    return [{"role": "system", "content": f"please limit your response to {rows-4} lines at most)"}]
 
 
-def print_markdown_stream(markdown_stream, gradual=False):
-    """Print a streaming markdown response in a formatted way."""
-    full_markdown = ""
-    for chunk in markdown_stream:
-        full_markdown += chunk
+def list_models(client):
+    console.print('models: ')
+    model_names = [ m.id for m in client.models.list() ]
+    console.print(Markdown(' \n ' + '\n - '.join(model_names)))
+    console.print('')
 
-        if gradual:
-            # Clear the console and reprint the full markdown
-            console.clear()
-            md = Markdown(full_markdown)
-            console.print(md)
-    
-    if not gradual:
-        console.print(Markdown(full_markdown))
-    console.print()
 
 
 def main():
-    
-    do_print_markdown = True
-    gradual = False
+    if len(providers) == 0:
+        console.print('no providers found, exiting')
+        return
 
-    while True:
-        try:
-            user_message_count = sum(1 for msg in chat_history if msg["role"] == "user")
-            prompt = f"[i]{model}[/i] [bold red]{user_message_count+1}[/] > "
-            text = console.input(prompt)
-            if text.strip() in ["q", "quit"]:
+    provider_name = providers[0]
+    client, provider_name, model = provider_factory(provider_name)
+    console.print('using provider: ', provider_name)
+
+    # Initialize the conversation with a system message
+    messages = primer()
+
+    our_history = FilteredHistory(".example-history-file")
+    session = PromptSession(history=our_history)
+
+    try:
+        while True:
+            # Get user input using prompt_toolkit
+            with patch_stdout():
+                user_input = session.prompt(
+                    HTML(f'<ansicyan>{model}: </ansicyan> '),
+                    multiline=False,
+                    is_password=False
+                )
+
+            if user_input.strip().lower() == '':
+                # Some people like to press enter to get a new line
+                continue
+
+            if user_input.strip().lower() in ('exit', 'quit', 'q'):
                 break
 
-            if text.strip() == "":
+            if user_input.strip().lower() in ('l'):
+                list_models(client)
                 continue
 
-            if text.strip() in ["n", "new"]:
-                chat_history.clear()
-                console.print("Chat history cleared.")
+            if user_input.strip().lower() in ('m'):
+                model = session.prompt(
+                    HTML(f'<ansicyan>model: </ansicyan> '),
+                    multiline=False,
+                    is_password=False
+                )
                 continue
 
-            with console.status("Working..."):
-                console.print(f"[i cyan]{model}:[/]")
-                response = complete(text)
+            if user_input.strip().lower() in ('p'):
+                provider_name = session.prompt(
+                    HTML(f'<ansicyan>provider: </ansicyan> '),
+                    multiline=False,
+                    is_password=False
+                )
+                client, provider_name, model = provider_factory(provider_name)
+                console.print(f'using provider: {provider_name} in new session')
+                messages = primer()
+                continue
 
-                if (do_print_markdown):
-                    print_markdown_stream(response, gradual=gradual)
-                else:
-                    for chunk in response:
-                        console.print(f"{chunk}", end="")
-                    console.print()
+            messages.append({"role": "user", "content": user_input})
 
-        except KeyboardInterrupt:
-            break
-        except Exception as e:
-            console.log(f"[red]Error: {e}[/]")
+            current_message = ""
 
-    console.print("[green]Bye![/]")
+            assistant_panel = Panel(
+                Align.left(Markdown(current_message)),
+                title="Assistant",
+                style="yellow",
+                expand=True,
+                box=EMPTY
+            )
 
+            with Live(assistant_panel, console=console, refresh_per_second=2, vertical_overflow='ellipsis') as live:
+                response_stream = client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    stream=True
+                )
+                for chunk in response_stream:
+                    delta = chunk.choices[0].delta
+                    content = getattr(delta, 'content', '')
+                    if content:
+                        current_message += content
+                        # Update the assistant's panel with new content
+                        assistant_panel = Panel(
+                            Align.left(Markdown(current_message)),
+                            title="Assistant",
+                            style="yellow",
+                            expand=True,
+                            border_style="none",
+                            box=EMPTY
+                        )
+                        live.update(assistant_panel)
 
+            messages.append({"role": "assistant", "content": current_message})
+    except KeyboardInterrupt:
+        pass
+    finally:
+        console.print(":wave: [italic]Bye[/]")
 
 if __name__ == "__main__":
     main()
+
+

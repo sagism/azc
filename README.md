@@ -6,6 +6,15 @@ Features:
 
     - Persistent command-line history
     - Chat history & reset
+    - Multi-provider support
+        - Ollama
+        - OpenAI
+
+# Possible future features
+
+    - Support for other LLM providers
+    - Support RTL languages
+    - Save output to file
 
 # Installation
 
@@ -19,6 +28,10 @@ Features:
     > q
     Bye!
     %
+
+    Use `q` to exit
+    Use `p` to set the provider
+    Use `l` to list the models for the selected provider
 
 # Setup
 
