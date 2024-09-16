@@ -127,18 +127,28 @@ def main():
     # Initialize the conversation with a system message
     messages = primer()
 
+    # Check if a command-line argument was provided
+    if len(sys.argv) > 1:
+        initial_prompt = ' '.join(sys.argv[1:])
+        messages.append({"role": "user", "content": initial_prompt})
+        console.print(f"Initial prompt: {initial_prompt}")
+
     our_history = FilteredHistory(".example-history-file")
     session = PromptSession(history=our_history)
 
     try:
         while True:
-            # Get user input using prompt_toolkit
-            with patch_stdout():
-                user_input = session.prompt(
-                    HTML(f'<ansicyan>{model}: </ansicyan> '),
-                    multiline=False,
-                    is_password=False
-                )
+            # If there's an initial prompt, process it first
+            if messages and messages[-1]["role"] == "user":
+                user_input = messages.pop()["content"]
+            else:
+                # Get user input using prompt_toolkit
+                with patch_stdout():
+                    user_input = session.prompt(
+                        HTML(f'<ansicyan>{model}: </ansicyan> '),
+                        multiline=False,
+                        is_password=False
+                    )
 
             if user_input.strip().lower() == '':
                 # Some people like to press enter to get a new line
