@@ -4,3 +4,4 @@ __pycache__
 .env
 .example*
 *.egg-info
+sandbox

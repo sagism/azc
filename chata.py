@@ -29,8 +29,10 @@ Note that at this point, I can either stream the response from the LLM, or I can
 but I can't do both, it just does not work right as I need to clear the console and reprint the markdown for each chunk,
 and I have not figured out how to do that yet selectively
 """
+
 console = Console()
 
+# TODO: make this configurable
 model = "gpt-4o-mini"
 
 MAX_HISTORY = 30
@@ -66,12 +68,6 @@ def complete(prompt):
 def is_command(text):
     return text.strip().lower() in ['q', 'n', 'new', 'quit']
 
-# class FilteredHistory(FileHistory):
-#     # Don't store commands in history
-#     def store_string(self, string: str) -> None:
-#         if not is_command(string):
-#                 super().store_string(string)
-
 
 def print_markdown_stream(markdown_stream, gradual=False):
     """Print a streaming markdown response in a formatted way."""
@@ -92,19 +88,14 @@ def print_markdown_stream(markdown_stream, gradual=False):
 
 def main():
     
-    # our_history = FilteredHistory(".example-history-file")
-    # session = PromptSession(history=our_history)
     do_print_markdown = True
     gradual = False
 
     while True:
         try:
             user_message_count = sum(1 for msg in chat_history if msg["role"] == "user")
-                # text = session.prompt(f"{model} ({user_message_count}) > ")
-            # text = session.prompt(HTML(f"<b><ansigray>{model}</ansigray></b> ({user_message_count+1}) > "))
-            # console.print(f"[blue underline]{model}</ansigray></b> ({user_message_count+1}) > "))
-            # text = input()
-            text = console.input(f"[i]{model}[/i] [bold red]{user_message_count+1}[/] > ")
+            prompt = f"[i]{model}[/i] [bold red]{user_message_count+1}[/] > "
+            text = console.input(prompt)
             if text.strip() in ["q", "quit"]:
                 break
 
@@ -116,7 +107,6 @@ def main():
                 console.print("Chat history cleared.")
                 continue
 
-            # print_formatted_text(HTML(f"<b><ansigray>{model}</ansigray></b>: "), end="")
             with console.status("Working..."):
                 console.print(f"[i cyan]{model}:[/]")
                 response = complete(text)
