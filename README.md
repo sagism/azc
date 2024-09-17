@@ -1,4 +1,4 @@
-# ASC - LLM Chat from the command-line
+# AZC - LLM Chat from the command-line
 
 A command-line tool for interacting with LLMs.
 
