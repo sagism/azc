@@ -1,8 +1,13 @@
 # LLM Chat from the command-line
 
-Right now only supports OpenAI Completion API, but later will support more...
+A command-line tool for interacting with LLMs.
 
-Features:
+# Why should you use this?
+
+    - If you're a command-line junkie, no need to switch to another tool
+    - Use pay-as-you-go pricing for LLM providers
+
+# Features
 
     - Persistent command-line history
     - Chat history & reset
@@ -12,9 +17,11 @@ Features:
 
 # Possible future features
 
-    - Support for other LLM providers
+    - Support for more LLM providers
     - Support RTL languages
     - Save output to file
+    - Patterns library
+    - Upload files
 
 # Installation
 

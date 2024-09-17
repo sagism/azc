@@ -1,12 +1,12 @@
 from setuptools import setup
 
 setup(
-    name='chata',
+    name='az',
     version='1.0',
-    py_modules=['chata'],
+    py_modules=['az'],
     entry_points={
         'console_scripts': [
-            'az=chata:main',  # 'as' is the command, 'chata:main' points to the `main` function in `chata.py`
+            'az=az:main',
         ],
     },
 )

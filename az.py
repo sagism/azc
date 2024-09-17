@@ -11,28 +11,18 @@ from rich.panel import Panel
 from rich.align import Align
 from rich.live import Live
 from rich.box import Box
-from openai import OpenAI
+
+from az.ollama_provider import OllamaClient
+from az.openai_provider import OpenAIClient
+from az.anthropic_provider import AnthropicClient  
+
+
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.history import FileHistory
 import readline # needed for prompt editing
 
-"""
-This is a chat app that allows you to chat with multiple providers
-
-You need to configure providers in the .env file
-
-it supports:
-
-- openai
-- ollama
-- anthropic
-
-use the 'p' key to change providers
-use the 'q' key to quit
-
-"""
 
 
 
@@ -62,7 +52,12 @@ if 'OLLAMA_URL' in os.environ:
 if 'ANTHROPIC_API_KEY' in os.environ:
     providers.append('anthropic')
 
-console.print('providers:', providers)
+console.print('providers configured:', ', '.join(providers))
+
+def primer():
+    columns, rows = shutil.get_terminal_size()
+    # single screen is better...
+    return f"please limit your response to {rows-4} lines at most)"
 
 
 def provider_factory(provider_hint):
@@ -78,20 +73,15 @@ def provider_factory(provider_hint):
         raise ValueError(f"Cannot find provider with <{provider_hint}>")
     
     if provider_full_name == 'ollama':
-        model = "llama3.1:latest"
-        return OpenAI(
-            base_url=os.environ['OLLAMA_URL'],
-            api_key='ollama',  # required, but unused in your local setup
-        ), provider_full_name,model
+        return OllamaClient(primer=primer())
     elif provider_full_name == 'openai':
-        model = 'gpt-4o-mini'
-        return OpenAI(), provider_full_name, model
-    else:
-        raise ValueError(f"Invalid provider: {provider_full_name}")
+        return OpenAIClient(primer=primer())
+    elif provider_full_name == 'anthropic':
+        return AnthropicClient(primer=primer())
 
 
 def is_command(string: str) -> bool:
-    return string.strip().lower() in ('exit', 'quit', 'q', 'p', 'l', 'm', 'p', '')
+    return string.strip().lower() in ('exit', 'quit', 'q', 'p', 'l', 'm', 'p', 'n', 'h', '?', '')
 
 class FilteredHistory(FileHistory):
     """
@@ -101,37 +91,34 @@ class FilteredHistory(FileHistory):
         if not is_command(string):
                 super().store_string(string)
 
-def primer():
-    columns, rows = shutil.get_terminal_size()
-    # single screen is better...
-    return [{"role": "system", "content": f"please limit your response to {rows-4} lines at most)"}]
 
+def help():
+    return """
 
-def list_models(client):
-    console.print('models: ')
-    model_names = [ m.id for m in client.models.list() ]
-    console.print(Markdown(' \n ' + '\n - '.join(model_names)))
-    console.print('')
+    | Command | Description |
+    |---------|-------------|
+    | l       | list models |
+    | n       | new chat    |
+    | ? or h  | help        |
+    | m       | change model |
+    | p       | change provider |
 
-
+    """
 
 def main():
     if len(providers) == 0:
-        console.print('no providers found, exiting')
+        console.print('no providers found, exiting, please set one of the following: OPENAI_API_KEY, OLLAMA_URL, ANTHROPIC_API_KEY in a .env file')
         return
 
     provider_name = providers[0]
-    client, provider_name, model = provider_factory(provider_name)
-    console.print('using provider: ', provider_name)
+    client = provider_factory(provider_name)
+    console.print('using: ', client)
 
-    # Initialize the conversation with a system message
-    messages = primer()
 
     # Check if a command-line argument was provided
+    initial_prompt = None
     if len(sys.argv) > 1:
         initial_prompt = ' '.join(sys.argv[1:])
-        messages.append({"role": "user", "content": initial_prompt})
-        console.print(f"Initial prompt: {initial_prompt}")
 
     our_history = FilteredHistory(".example-history-file")
     session = PromptSession(history=our_history)
@@ -139,13 +126,13 @@ def main():
     try:
         while True:
             # If there's an initial prompt, process it first
-            if messages and messages[-1]["role"] == "user":
-                user_input = messages.pop()["content"]
+            if initial_prompt:
+                user_input = initial_prompt
             else:
                 # Get user input using prompt_toolkit
                 with patch_stdout():
                     user_input = session.prompt(
-                        HTML(f'<ansicyan>{model}: </ansicyan> '),
+                        HTML(f'<ansicyan>az></ansicyan> '),
                         multiline=False,
                         is_password=False
                     )
@@ -158,7 +145,15 @@ def main():
                 break
 
             if user_input.strip().lower() in ('l'):
-                list_models(client)
+                console.print(Markdown('\n' + '\n  - '.join(client.list_models() )))
+                continue
+
+            if user_input.strip().lower() in ('n'):
+                client.new_chat()
+                continue
+
+            if user_input.strip().lower() in ('h', '?'):
+                console.print(Markdown(help()))
                 continue
 
             if user_input.strip().lower() in ('m'):
@@ -167,6 +162,7 @@ def main():
                     multiline=False,
                     is_password=False
                 )
+                client.model = model
                 continue
 
             if user_input.strip().lower() in ('p'):
@@ -175,46 +171,34 @@ def main():
                     multiline=False,
                     is_password=False
                 )
-                client, provider_name, model = provider_factory(provider_name)
-                console.print(f'using provider: {provider_name} in new session')
-                messages = primer()
+                client = provider_factory(provider_name)
+                console.print(f'using provider: {client.provider} in new session')
                 continue
 
-            messages.append({"role": "user", "content": user_input})
-
-            current_message = ""
 
             assistant_panel = Panel(
-                Align.left(Markdown(current_message)),
+                Align.left(""),
                 title="Assistant",
                 style="yellow",
                 expand=True,
                 box=EMPTY
             )
 
-            with Live(assistant_panel, console=console, refresh_per_second=2, vertical_overflow='ellipsis') as live:
-                response_stream = client.chat.completions.create(
-                    model=model,
-                    messages=messages,
-                    stream=True
-                )
-                for chunk in response_stream:
-                    delta = chunk.choices[0].delta
-                    content = getattr(delta, 'content', '')
-                    if content:
-                        current_message += content
-                        # Update the assistant's panel with new content
-                        assistant_panel = Panel(
-                            Align.left(Markdown(current_message)),
-                            title="Assistant",
-                            style="yellow",
-                            expand=True,
-                            border_style="none",
-                            box=EMPTY
-                        )
-                        live.update(assistant_panel)
+            current_message = ""
 
-            messages.append({"role": "assistant", "content": current_message})
+            with Live(assistant_panel, console=console, refresh_per_second=2, vertical_overflow='ellipsis') as live:
+                for chunk in client.chat(user_input):
+                    current_message += chunk
+                    assistant_panel = Panel(
+                        Align.left(Markdown(current_message)),
+                        title="Assistant",
+                        style="yellow",
+                        expand=True,
+                        border_style="none",
+                        box=EMPTY
+                    )
+                    live.update(assistant_panel)
+
     except KeyboardInterrupt:
         pass
     finally:
