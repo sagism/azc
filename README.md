@@ -6,8 +6,8 @@ A command-line tool for interacting with LLMs.
 
 # Why should you use this?
 
-- If you're a command-line junkie, no need to switch to another tool
-- Use pay-as-you-go pricing for LLM providers (API vs. Chat)
+- If you're a command-line junkie, you don't need to switch to another tool to chat with your LLM
+- Use pay-as-you-go pricing for LLM providers (Probably cheaper)
 
 # Features
 
@@ -29,6 +29,7 @@ A command-line tool for interacting with LLMs.
 - Save output to file
 - Patterns library
 - Upload files
+- Aggregate responses from multiple providers
 - Support more modes (image generation, transcription, etc.)
 - Automated testing?
 
