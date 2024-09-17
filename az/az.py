@@ -133,7 +133,7 @@ def main():
                 # Get user input using prompt_toolkit
                 with patch_stdout():
                     user_input = session.prompt(
-                        HTML(f'<ansicyan>az></ansicyan> '),
+                        HTML(f'<ansicyan>azc></ansicyan> '),
                         multiline=False,
                         is_password=False
                     )
