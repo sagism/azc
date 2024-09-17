@@ -1,4 +1,4 @@
-from llm_provider import LLMProvider
+from .llm_provider import LLMProvider
 import anthropic
 from dotenv import load_dotenv
 load_dotenv()

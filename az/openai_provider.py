@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-from llm_provider import LLMProvider
+from .llm_provider import LLMProvider
 from openai import OpenAI
 
 
@@ -48,3 +48,5 @@ if __name__ == "__main__":
     for text in client.chat("I'm traveling to Madrid soon (mid-October) with my wife. We love food, history and shopping. We've been there before. Can you recommend a few destinations/activities off the beaten path? We're staying in the city center and will be there for 3 days. We're looking for authentic experiences, not tourist traps."):
         print(text, end="", flush=True)
     print()
+
+    print(client.list_models())

@@ -6,7 +6,7 @@ setup(
     py_modules=['az'],
     entry_points={
         'console_scripts': [
-            'az=az:main',
+            'az=az.az:main',
         ],
     },
 )

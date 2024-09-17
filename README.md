@@ -10,22 +10,25 @@ A command-line tool for interacting with LLMs.
 # Features
 
     - Persistent command-line history
-    - Chat history & reset
+    - Chat history & reset (start new chat)
+    - Switch provider and model
+    - Markdown output
     - Multi-provider support
         - Ollama
         - OpenAI
+        - Anthropic
 
 # Possible future features
 
-    - Support for more LLM providers
-    - Support RTL languages
-    - Save output to file
-    - Patterns library
-    - Upload files
+    • Support for more LLM providers
+    • Support RTL languages
+    • Save output to file
+    • Patterns library
+    • Upload files
 
 # Installation
 
-    pip install chata
+    pip install az
 
 # Running
 

@@ -11,19 +11,15 @@ from rich.panel import Panel
 from rich.align import Align
 from rich.live import Live
 from rich.box import Box
-
-from az.ollama_provider import OllamaClient
-from az.openai_provider import OpenAIClient
-from az.anthropic_provider import AnthropicClient  
-
-
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.history import FileHistory
 import readline # needed for prompt editing
 
-
+from .ollama_provider import OllamaClient
+from .openai_provider import OpenAIClient
+from .anthropic_provider import AnthropicClient
 
 
 # An empty box border makes it easier to copy and paste the code.
@@ -52,7 +48,7 @@ if 'OLLAMA_URL' in os.environ:
 if 'ANTHROPIC_API_KEY' in os.environ:
     providers.append('anthropic')
 
-console.print('providers configured:', ', '.join(providers))
+console.print('providers configured: [yellow]' + ', '.join(providers) + '[/]')
 
 def primer():
     columns, rows = shutil.get_terminal_size()
@@ -95,15 +91,16 @@ class FilteredHistory(FileHistory):
 def help():
     return """
 
-    | Command | Description |
-    |---------|-------------|
-    | l       | list models |
-    | n       | new chat    |
-    | ? or h  | help        |
-    | m       | change model |
-    | p       | change provider |
+Just type your message and press enter to start a chat.
 
-    """
+| Command | Description |
+|---------|-------------|
+| l       | List models |
+| n       | New chat    |
+| ? or h  | Help        |
+| m       | Change model |
+| p       | Change provider |
+"""
 
 def main():
     if len(providers) == 0:
@@ -112,7 +109,8 @@ def main():
 
     provider_name = providers[0]
     client = provider_factory(provider_name)
-    console.print('using: ', client)
+    console.print(f'using: [green]{client}[/]')
+    console.print('[magenta]type ? or h for help[/]')
 
 
     # Check if a command-line argument was provided
@@ -145,7 +143,7 @@ def main():
                 break
 
             if user_input.strip().lower() in ('l'):
-                console.print(Markdown('\n' + '\n  - '.join(client.list_models() )))
+                console.print(Markdown('  - ' + '\n  - '.join(client.list_models())))
                 continue
 
             if user_input.strip().lower() in ('n'):
@@ -158,7 +156,7 @@ def main():
 
             if user_input.strip().lower() in ('m'):
                 model = session.prompt(
-                    HTML(f'<ansicyan>model: </ansicyan> '),
+                    HTML(f'<ansicyan>model (partial name okay): </ansicyan> '),
                     multiline=False,
                     is_password=False
                 )
@@ -167,12 +165,12 @@ def main():
 
             if user_input.strip().lower() in ('p'):
                 provider_name = session.prompt(
-                    HTML(f'<ansicyan>provider: </ansicyan> '),
+                    HTML(f'<ansicyan>provider (partial name okay): </ansicyan> '),
                     multiline=False,
                     is_password=False
                 )
                 client = provider_factory(provider_name)
-                console.print(f'using provider: {client.provider} in new session')
+                console.print(f'using: {client} (new chat)')
                 continue
 
 
