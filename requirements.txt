@@ -3,3 +3,4 @@ prompt_toolkit==3.0.47
 python-dotenv==1.0.1
 rich==13.8.1
 anthropic==0.34.2
+setuptools==75.1.0
