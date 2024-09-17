@@ -2,6 +2,8 @@
 
 A command-line tool for interacting with LLMs.
 
+![AZC screenshot](assets/recipe.gif)
+
 # Why should you use this?
 
 - If you're a command-line junkie, no need to switch to another tool
