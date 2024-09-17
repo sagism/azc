@@ -34,21 +34,25 @@ A command-line tool for interacting with LLMs.
 
     % azc
     > how tall is the eifel tower?
-    gpt-4o-mini: The Eiffel Tower is approximately 1,083 feet (330 meters) tall, including its antennas. The structure itself, without antennas, is about 1,063 feet (324 meters).
+    openai:gpt-4o-mini: The Eiffel Tower is approximately 1,083 feet (330 meters) tall, including its antennas. The structure itself, without antennas, is about 1,063 feet (324 meters).
     > q
     Bye!
     %
 
-    Use `q` to exit
-    Use `p` to set the provider (you can use a partial name)
-    Use `l` to list the models for the selected provider
-    Use `m` to set the model (you can use a partial name)
-
     You can specify the first prompt as a command-line argument:
 
-    % az "what is the capital of the moon?"
+    % azc "what is the capital of the moon?"
     gpt-4o-mini: The capital of the moon is called "New Moon".
     >
+
+# Commands
+
+- `q` or `exit` - exit the program
+- `h` or `?` - show help
+- `l` - list models
+- `n` - start new chat
+- `p` - Change provider
+- `m` - Change model
 
 # Setup
 

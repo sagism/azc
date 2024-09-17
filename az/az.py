@@ -128,6 +128,7 @@ def main():
             # If there's an initial prompt, process it first
             if initial_prompt:
                 user_input = initial_prompt
+                initial_prompt = None
             else:
                 # Get user input using prompt_toolkit
                 with patch_stdout():
