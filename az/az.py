@@ -22,6 +22,7 @@ from .utils import number_to_ordinal
 from .ollama_provider import OllamaClient
 from .openai_provider import OpenAIClient
 from .anthropic_provider import AnthropicClient
+from .gemini_provider import GeminiClient
 
 
 # An empty box border makes it easier to copy and paste the code.
@@ -49,6 +50,9 @@ if 'OLLAMA_URL' in os.environ:
     providers.append('ollama')
 if 'ANTHROPIC_API_KEY' in os.environ:
     providers.append('anthropic')
+if 'GEMINI_API_KEY' in os.environ:
+    providers.append('gemini')
+
 
 console.print('providers configured: [yellow]' + ', '.join(providers) + '[/]')
 
@@ -76,6 +80,8 @@ def provider_factory(provider_hint):
         return OpenAIClient(primer=primer())
     elif provider_full_name == 'anthropic':
         return AnthropicClient(primer=primer())
+    elif provider_full_name == 'gemini':
+        return GeminiClient(primer=primer())
 
 
 def is_command(string: str) -> bool:

@@ -33,7 +33,7 @@ A command-line tool for interacting with LLMs.
 
 # Installation
 
-    `pip install azc`
+    pip install azc
 
 # Running
 
@@ -63,7 +63,7 @@ A command-line tool for interacting with LLMs.
 
 You will need to configure at least one LLM API.
 
-For example, if using the OpenAPI Completion API, you should create a .env file which contains your API Key.
+You should create a `.env` file which contains your API Key/s.
 
 See `.env.sample` for a sample file
 
