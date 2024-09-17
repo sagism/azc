@@ -17,6 +17,8 @@ from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.history import FileHistory
 import readline # needed for prompt editing
 
+from .utils import number_to_ordinal
+
 from .ollama_provider import OllamaClient
 from .openai_provider import OpenAIClient
 from .anthropic_provider import AnthropicClient
@@ -174,9 +176,11 @@ def main():
                 continue
 
 
+            title = f"{client} ({number_to_ordinal(client.n_user_messages()+1)} message)"
+
             assistant_panel = Panel(
                 Align.left(""),
-                title="Assistant",
+                title=title,
                 style="yellow",
                 expand=True,
                 box=EMPTY
@@ -189,7 +193,7 @@ def main():
                     current_message += chunk
                     assistant_panel = Panel(
                         Align.left(Markdown(current_message)),
-                        title="Assistant",
+                        title=title,
                         style="yellow",
                         expand=True,
                         border_style="none",

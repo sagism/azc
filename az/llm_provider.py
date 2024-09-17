@@ -42,6 +42,10 @@ class LLMProvider:
             # Default is to use OpenAI system prompt
             self.messages.append({"role": "system", "content": self.primer})
 
+    def n_user_messages(self):
+        """ Number of user messages in the history """
+        return len([m for m in self.messages if m['role'] == 'user'])
+
     def __str__(self):
         return f"{self.provider}:{self.model}"
     

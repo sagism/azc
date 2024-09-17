@@ -2,37 +2,37 @@
 
 A command-line tool for interacting with LLMs.
 
-# Why should you use this?
+## Why should you use this?
 
-    - If you're a command-line junkie, no need to switch to another tool
-    - Use pay-as-you-go pricing for LLM providers
+- If you're a command-line junkie, no need to switch to another tool
+- Use pay-as-you-go pricing for LLM providers
 
-# Features
+## Features
 
-    - Persistent command-line history
-    - Chat history & reset (start new chat)
-    - Switch provider and model
-    - Markdown output
-    - Multi-provider support
-        - Ollama
-        - OpenAI
-        - Anthropic
+- Persistent command-line history
+- Chat history & reset (start new chat)
+- Switch provider and model
+- Markdown output
+- Multi-provider support
+  - Ollama
+  - OpenAI
+  - Anthropic
 
-# Possible future features
+## Possible future features
 
-    • Support for more LLM providers
-    • Support RTL languages
-    • Save output to file
-    • Patterns library
-    • Upload files
+- Support for more LLM providers
+- Support RTL languages
+- Save output to file
+- Patterns library
+- Upload files
 
-# Installation
+## Installation
 
-    pip install az
+    pip install azc
 
 # Running
 
-    % az
+    % azc
     > how tall is the eifel tower?
     gpt-4o-mini: The Eiffel Tower is approximately 1,083 feet (330 meters) tall, including its antennas. The structure itself, without antennas, is about 1,063 feet (324 meters).
     > q

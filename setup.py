@@ -1,12 +1,12 @@
 from setuptools import setup
 
 setup(
-    name='az',
+    name='azc',
     version='1.0',
     py_modules=['az'],
     entry_points={
         'console_scripts': [
-            'az=az.az:main',
+            'azc=az.az:main',
         ],
     },
 )
