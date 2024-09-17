@@ -31,29 +31,22 @@ A command-line tool for interacting with LLMs.
 
 # Installation
 
-    clone the repository
-    install dependencies: `pip install -r requirements.txt`
-    install the package: `pip install .`
-
-    Later, when the package will be available on PyPI, you will be able to install it via pip:
     `pip install azc`
 
 # Running
 
-    ```bash
     % azc
-    > how tall is the eifel tower?
+    azc> how tall is the eifel tower?
     openai:gpt-4o-mini: The Eiffel Tower is approximately 1,083 feet (330 meters) tall, including its antennas. The structure itself, without antennas, is about 1,063 feet (324 meters).
-    > q
+    azc> q
     Bye!
     %
 
     You can specify the first prompt as a command-line argument:
 
     % azc "what is the capital of the moon?"
-    gpt-4o-mini: The capital of the moon is called "New Moon".
-    >
-    ```
+    openai:gpt-4o-mini: The capital of the moon is called "New Moon".
+    azc>
 
 # Commands
 
@@ -75,7 +68,7 @@ See `.env.sample` for a sample file
 Here are the links to the API sign-up pages (or download in case of Ollama):
 
 - [OpenAI](https://platform.openai.com/signup)
-- [Anthropic](https://console.anthropic.com/register)
+- [Anthropic](https://console.anthropic.com/)
 - [Ollama](https://ollama.com/)
 
 # Contributing
