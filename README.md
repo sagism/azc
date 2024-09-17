@@ -15,6 +15,7 @@ A command-line tool for interacting with LLMs.
   - Ollama
   - OpenAI
   - Anthropic
+  - Gemini
 - Streaming responses
 - Persistent command-line history
 - Chat history & reset (start new chat)
@@ -72,6 +73,7 @@ Here are the links to the API sign-up pages (or download in case of Ollama):
 - [OpenAI](https://platform.openai.com/signup)
 - [Anthropic](https://console.anthropic.com/)
 - [Ollama](https://ollama.com/)
+- [Gemini](https://ai.google.dev/gemini-api/docs)
 
 # Contributing
 
