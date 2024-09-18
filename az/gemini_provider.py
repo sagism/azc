@@ -10,21 +10,23 @@ genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
 class GeminiClient(LLMProvider):
     def __init__(self, primer=None):
+        self.primer = primer
         self.provider = 'gemini'
         self.models = self.list_models()
         self.model = 'gemini-1.5-flash'
+        self._n_user_messages = 0
         self.client = genai.GenerativeModel(
             model_name=self.model,
-            system_instruction=primer
-        )
-        
-        self.messages = []
+            system_instruction=self.primer
+        )        
         self._chat = self.client.start_chat()
           
 
     def list_models(self):
         return ['gemini-1.5-flash']
 
+    def n_user_messages(self):
+        return self._n_user_messages
 
     def chat(self, message):
         current_message = ""
@@ -34,10 +36,14 @@ class GeminiClient(LLMProvider):
             current_message += delta
             yield delta
 
-        self.messages.append({"role": "user", "parts": message})
-        self.messages.append({"role": "model", "parts": current_message})
+        self._n_user_messages += 1
         return current_message
 
+    def new_chat(self, primer=None):
+        if primer:
+            self.primer = primer
+        self._chat = self.client.start_chat()
+        self._n_user_messages = 0
 
 
 if __name__ == "__main__":

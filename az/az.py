@@ -19,13 +19,14 @@ import readline # needed for prompt editing
 
 from .utils import number_to_ordinal
 
+# Providers
 from .ollama_provider import OllamaClient
 from .openai_provider import OpenAIClient
 from .anthropic_provider import AnthropicClient
 from .gemini_provider import GeminiClient
 
 
-# An empty box border makes it easier to copy and paste the code.
+# An empty box border makes it easier to copy and paste.
 EMPTY: Box = Box(
     "    \n"
     "    \n"
@@ -57,7 +58,7 @@ if 'GEMINI_API_KEY' in os.environ:
 console.print('providers configured: [yellow]' + ', '.join(providers) + '[/]')
 
 def primer():
-    columns, rows = shutil.get_terminal_size()
+    _, rows = shutil.get_terminal_size()
     # single screen is better...
     return f"please limit your response to {rows-4} lines at most)"
 
@@ -112,10 +113,10 @@ Just type your message and press enter to start a chat.
 
 def main():
     if len(providers) == 0:
-        console.print('no providers found, exiting, please set one of the following: OPENAI_API_KEY, OLLAMA_URL, ANTHROPIC_API_KEY in a .env file')
+        console.print('no providers found, exiting, please set one of the following: OPENAI_API_KEY, OLLAMA_URL, ANTHROPIC_API_KEY, GEMINI_API_KEY in a .env file')
         return
 
-    provider_name = providers[0]
+    provider_name = providers[0] # dumb default. should probably let user set it
     client = provider_factory(provider_name)
     console.print(f'using: [green]{client}[/]')
     console.print('[magenta]type ? or h for help[/]')

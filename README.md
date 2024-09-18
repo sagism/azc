@@ -7,7 +7,8 @@ A command-line tool for interacting with LLMs.
 # Why should you use this?
 
 - If you're a command-line junkie, you don't need to switch to another tool to chat with your LLM
-- Use pay-as-you-go pricing for LLM providers (Probably cheaper)
+- One tool, multiple LLMs (OpenAI, Anthropic, Ollama, Gemini) - Why settle for one when you can have them all?
+- Pay-as-you-go pricing for LLM providers (Cheaper in many cases)
 
 # Features
 
@@ -16,22 +17,24 @@ A command-line tool for interacting with LLMs.
   - OpenAI
   - Anthropic
   - Gemini
-- Streaming responses
-- Persistent command-line history
-- Chat history & reset (start new chat)
-- Switch provider and model
-- Markdown output
+- Streaming responses (see response as it is being generated)
+- Persistent command-line history (use up and down arrows to navigate)
+- Chat history & reset (full discussion, start new chat)
+- Switch provider and model (compare models and providers)
+- Markdown output (nicely formatted headings, lists, tables, etc.)
+- Command-line parameters (first prompt)
 
 # Possible future features
 
 - Support for more LLM providers
+- Command-line completion (for providers and models)
 - Support RTL languages
 - Save output to file
-- Patterns library
+- Patterns library (a-la fabrik)
 - Upload files
 - Aggregate responses from multiple providers
 - Support more modes (image generation, transcription, etc.)
-- Automated testing?
+- Automated testing
 
 # Installation
 
