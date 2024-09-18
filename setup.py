@@ -1,12 +1,7 @@
 from setuptools import setup, find_packages
 
-import re
+from az.utils import remove_images_from_markdown
 
-def remove_images_from_markdown(markdown_text):
-    # Regex pattern to match Markdown image syntax
-    image_pattern = r'!\[.*?\]\(.*?\)'
-    # Remove all instances of image syntax from the text
-    return re.sub(image_pattern, '', markdown_text)
 
 # Read the content of README.md
 with open('README.md', 'r') as f:
@@ -14,8 +9,6 @@ with open('README.md', 'r') as f:
 
 # Remove images from the readme content
 readme_content_without_images = remove_images_from_markdown(readme_content)
-
-
 
 setup(
     name='azc',

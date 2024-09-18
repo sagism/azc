@@ -5,6 +5,8 @@ import os
 import shutil
 
 from dotenv import load_dotenv
+
+# a mix of rich and prompt_toolkit seem to hit the sweet spot for terminal UI interactivity
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
@@ -15,6 +17,8 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.history import FileHistory
+from prompt_toolkit.completion import WordCompleter, Completer, Completion
+
 import readline # needed for prompt editing
 
 from .utils import number_to_ordinal
@@ -54,6 +58,22 @@ if 'ANTHROPIC_API_KEY' in os.environ:
 if 'GEMINI_API_KEY' in os.environ:
     providers.append('gemini')
 
+# provider_completer = WordCompleter([f"p {provider}" for provider in providers], ignore_case=True)
+
+class CommandsCompleter(Completer):
+    """
+    This completer handles the 'p' command for changing provider
+    """
+    def get_completions(self, document, complete_event):
+        text = document.current_line
+        if text.startswith('p '):   
+            for provider in providers:
+                yield Completion(
+                f'p {provider}', start_position=-1000,
+                display=HTML(f'{provider}'),
+                style='bg:ansiyellow')
+        
+completer = CommandsCompleter()
 
 console.print('providers configured: [yellow]' + ', '.join(providers) + '[/]')
 
@@ -142,7 +162,8 @@ def main():
                     user_input = session.prompt(
                         HTML(f'<ansicyan>azc></ansicyan> '),
                         multiline=False,
-                        is_password=False
+                        is_password=False,
+                        completer=completer
                     )
 
             if user_input.strip().lower() == '':
@@ -173,16 +194,14 @@ def main():
                 client.model = model
                 continue
 
-            if user_input.strip().lower() in ('p'):
-                provider_name = session.prompt(
-                    HTML(f'<ansicyan>provider (partial name okay): </ansicyan> '),
-                    multiline=False,
-                    is_password=False
-                )
-                client = provider_factory(provider_name)
-                console.print(f'using: {client} (new chat)')
+            if user_input.startswith('p '):
+                provider_name = user_input.split(' ')[1]
+                try:
+                    client = provider_factory(provider_name)
+                    console.print(f'using: {client} (new chat)')
+                except ValueError as e:
+                    console.print(f'[red]error: {e}[/]')
                 continue
-
 
             title = f"{client} ({number_to_ordinal(client.n_user_messages()+1)} message)"
 
