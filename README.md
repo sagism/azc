@@ -1,4 +1,4 @@
-![AZC logo](assets/brain.png)
+![AZC logo](assets/azc_logo.png)
 
 # azc - LLM Chat from the command-line
 
@@ -57,6 +57,25 @@ A command-line tool for interacting with LLMs.
     openai:gpt-4o-mini: The capital of the moon is called "New Moon".
     azc>
 
+## Command-line parameters
+
+- default parameter: first prompt
+- `-d` / `--double-enter` - Press enter twice to submit - This is useful for those who want to use use multi-line prompts without pressing ctrl-j to add new line.
+- `--provider` - The provider to use (coming soon)
+- `--model` - The model to use (coming soon)
+
+example:
+
+    % azc "knock knock"
+    providers configured: openai, ollama, anthropic, gemini
+    using: openai:gpt-4o-mini
+    type ? or h for help
+    ...
+    openai:gpt-4o-mini (1st message)
+    Who's there?
+
+    azc>
+
 # Commands
 
 - `q` or `exit` - exit the program
@@ -65,6 +84,7 @@ A command-line tool for interacting with LLMs.
 - `n` - start new chat
 - `p` - Change provider
 - `m` - Change model
+- `ctrl-n` - new line
 
 # Setup
 

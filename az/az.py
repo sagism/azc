@@ -3,6 +3,8 @@
 import sys
 import os
 import shutil
+import argparse
+
 
 from dotenv import load_dotenv
 
@@ -17,7 +19,8 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.history import FileHistory
-from prompt_toolkit.completion import WordCompleter, Completer, Completion
+from prompt_toolkit.completion import Completer, Completion
+from prompt_toolkit.key_binding import KeyBindings
 
 import readline # needed for prompt editing
 
@@ -28,6 +31,19 @@ from .ollama_provider import OllamaClient
 from .openai_provider import OpenAIClient
 from .anthropic_provider import AnthropicClient
 from .gemini_provider import GeminiClient
+
+bindings = KeyBindings()
+
+def is_command(string: str) -> bool:
+    if string.strip().lower() in ('exit', 'quit', 'q', 'p', 'l', 'm', 'p', 'n', 'h', '?', ''): return True
+    elif string.strip().startswith("p "): return True
+    else: return False
+
+
+# Bind 'Control+n' to insert a newline
+@bindings.add('c-n')
+def insert_newline(event):
+    event.current_buffer.insert_text('\n')
 
 
 # An empty box border makes it easier to copy and paste.
@@ -105,8 +121,7 @@ def provider_factory(provider_hint):
         return GeminiClient(primer=primer())
 
 
-def is_command(string: str) -> bool:
-    return string.strip().lower() in ('exit', 'quit', 'q', 'p', 'l', 'm', 'p', 'n', 'h', '?', '')
+
 
 class FilteredHistory(FileHistory):
     """
@@ -125,16 +140,49 @@ Just type your message and press enter to start a chat.
 | Command | Description |
 |---------|-------------|
 | l       | List models |
-| n       | New chat    |
-| ? or h  | Help        |
+| n       | New chat ( )   |
+| ? or h  | Help (this screen) |
 | m       | Change model |
-| p       | Change provider |
+| p       | Change provider (p and space trigger autocomplete) |
+| ctrl-n  | New line |
 """
 
-def main():
+def main(initial_prompt=None):
     if len(providers) == 0:
         console.print('no providers found, exiting, please set one of the following: OPENAI_API_KEY, OLLAMA_URL, ANTHROPIC_API_KEY, GEMINI_API_KEY in a .env file')
         return
+    
+    parser = argparse.ArgumentParser(description="Chat with an AI assistant")
+    parser.add_argument("-d", "--double-enter", action="store_true", help="Enable 'press enter twice to submit' mode")
+    parser.add_argument("initial_prompt", nargs='?', help="Initial prompt (if provided without a flag)")
+    args = parser.parse_args()
+    initial_prompt = args.initial_prompt
+
+    if args.double_enter:
+        console.print("type <enter> twice to submit...")
+        @bindings.add('enter')
+        def _(event):
+            buffer = event.current_buffer
+            # print(f'handling enter [{buffer.document.text}]')
+            accepted = False
+            if buffer.document.text.strip() == '':
+                # print("empty")
+                accepted = True
+            elif is_command(buffer.document.text):
+                # print("is command")
+                accepted = True
+            elif buffer.document.text.endswith('\n') and buffer.document.is_cursor_at_the_end:
+                # print("dbl-newline")
+                # Submit if there's at least two newlines and cursor is at the end
+                accepted = True
+            else:
+                # print("newline")
+                # buffer.insert_text('\n')
+                accepted = False
+            if accepted:
+                buffer.validate_and_handle()
+            else:
+                buffer.insert_text('\n')
 
     provider_name = providers[0] # dumb default. should probably let user set it
     client = provider_factory(provider_name)
@@ -142,16 +190,18 @@ def main():
     console.print('[magenta]type ? or h for help[/]')
 
 
-    # Check if a command-line argument was provided
-    initial_prompt = None
-    if len(sys.argv) > 1:
-        initial_prompt = ' '.join(sys.argv[1:])
+    def bottom_toolbar():
+        return HTML(f' Using <b>{client}</b> ({number_to_ordinal(client.n_user_messages()+1)} message)')
+
 
     our_history = FilteredHistory(".example-history-file")
     session = PromptSession(history=our_history)
 
+
+    done=False
+
     try:
-        while True:
+        while not done:
             # If there's an initial prompt, process it first
             if initial_prompt:
                 user_input = initial_prompt
@@ -161,9 +211,9 @@ def main():
                 with patch_stdout():
                     user_input = session.prompt(
                         HTML(f'<ansicyan>azc></ansicyan> '),
-                        multiline=False,
-                        is_password=False,
-                        completer=completer
+                        completer=completer,
+                        bottom_toolbar=bottom_toolbar,
+                        key_bindings=bindings
                     )
 
             if user_input.strip().lower() == '':
@@ -216,6 +266,7 @@ def main():
             current_message = ""
 
             with Live(assistant_panel, console=console, refresh_per_second=2, vertical_overflow='ellipsis') as live:
+                console.print(f'...')
                 for chunk in client.chat(user_input):
                     current_message += chunk
                     assistant_panel = Panel(
@@ -229,7 +280,7 @@ def main():
                     live.update(assistant_panel)
 
     except KeyboardInterrupt:
-        pass
+        done = True
     finally:
         console.print(":wave: [italic]Bye[/]")
 

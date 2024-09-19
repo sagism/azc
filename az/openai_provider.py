@@ -2,15 +2,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from .llm_provider import LLMProvider
-from openai import OpenAI
+from openai import OpenAI, NotFoundError
 
 
 class OpenAIClient(LLMProvider):
     def __init__(self, primer=None):
         self.provider = 'openai'
         self.client = OpenAI()
-        self.models = self.list_models()
-        self.model = 'gpt-4o-m'
+        self.models = ['gpt-4o-mini']
+        self.model = self.models[0]
+        self.list_models()
         self.messages = []
         self.primer = primer
         if self.primer:
@@ -18,9 +19,14 @@ class OpenAIClient(LLMProvider):
           
 
     def list_models(self):
-        return [m.id for m in self.client.models.list().data]
-    
-
+        try:
+            models = [m.id for m in self.client.models.list().data]
+            self.models = models
+        except NotFoundError as e:
+            # sometimes I get a 404 on this
+            print(f"Error fetching models: {e}. Either use a different model or restart and try again.")
+        finally:
+            return self.models
 
 
     def chat(self, message):
@@ -40,7 +46,6 @@ class OpenAIClient(LLMProvider):
 
         self.messages.append({"role": "assistant", "content": current_message})
         return current_message
-
 
 
 if __name__ == "__main__":
