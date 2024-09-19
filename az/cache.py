@@ -34,6 +34,21 @@ class FileCache:
         self._save_cache()
 
 
+if __name__ == "__main__":
+    import random
+    if os.path.exists("cache.json") and random.random() < 0.5:
+        print("removing cache.json")
+        os.remove("cache.json")
+    cache = FileCache("cache.json")
+    if len(cache.get("openai")) == 0:
+        print("setting cache")
+        cache.set("openai", ["gpt-4", "gpt-4o-mini"])
+    else:
+        print("cache hit")
+        models = cache.get("openai")
+        print("models:", models)
+        
+    # print(cache.get("openai"))
 
 
 

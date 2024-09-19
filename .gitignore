@@ -9,3 +9,4 @@ build
 dist
 DEV_README.md
 Dev Todo.txt
+.models.json

@@ -9,11 +9,14 @@ import google.generativeai as genai
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
 class GeminiClient(LLMProvider):
-    def __init__(self, primer=None):
+    def __init__(self, config, primer=None):
         self.primer = primer
         self.provider = 'gemini'
+        self.config = config
+
         self.models = self.list_models()
-        self.model = 'gemini-1.5-flash'
+        self.model = self.config.get(self.provider, {}).get("model", "gemini-1.5-flash")
+        
         self._n_user_messages = 0
         self.client = genai.GenerativeModel(
             model_name=self.model,
@@ -23,7 +26,8 @@ class GeminiClient(LLMProvider):
           
 
     def list_models(self):
-        return ['gemini-1.5-flash']
+        # I don't see a way to list models in the API
+        return ['gemini-1.5-flash', 'gemini-1.5-pro']
 
     def n_user_messages(self):
         return self._n_user_messages

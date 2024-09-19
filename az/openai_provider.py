@@ -3,30 +3,41 @@ load_dotenv()
 
 from .llm_provider import LLMProvider
 from openai import OpenAI, NotFoundError
+from .cache import FileCache
 
 
 class OpenAIClient(LLMProvider):
-    def __init__(self, primer=None):
+    def __init__(self, config, primer=None):
         self.provider = 'openai'
         self.client = OpenAI()
-        self.models = ['gpt-4o-mini']
-        self.model = self.models[0]
+        self.models_cache = FileCache(".models.json")
+        
         self.list_models()
+        self.config = config
+        self.model = self.config.get("openai", {}).get("model", "gpt-4o-mini")
         self.messages = []
+        
         self.primer = primer
         if self.primer:
             self.messages.append({"role": "system", "content": self.primer})
           
 
     def list_models(self):
+        self.models = self.models_cache.get(self.provider)
+        if len(self.models) == 0:
+            self.refresh_models()
+        return self.models
+
+
+    def refresh_models(self):
+        print("refreshing models")
         try:
             models = [m.id for m in self.client.models.list().data]
             self.models = models
+            self.models_cache.set(self.provider, models)
         except NotFoundError as e:
             # sometimes I get a 404 on this
             print(f"Error fetching models: {e}. Either use a different model or restart and try again.")
-        finally:
-            return self.models
 
 
     def chat(self, message):

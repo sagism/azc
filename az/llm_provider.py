@@ -1,10 +1,12 @@
 """ Base class for LLM providers """
 
+
 class LLMProvider:
 
     def __init__(self, primer=None, model=None):
+        self.name = None
         self.provider = None
-        self.model = model
+
         self.messages = []
         self.primer = None
 

@@ -5,11 +5,12 @@ load_dotenv()
 
 
 class AnthropicClient(LLMProvider):
-    def __init__(self, primer=None):
+    def __init__(self, config, primer=None):
         self.provider = 'anthropic'
         self.client = anthropic.Anthropic()
         self.models = self.list_models()
-        self.model = 'claude-3-5-sonnet'
+        self.config = config
+        self.model = self.config.get("anthropic", {}).get("model", "claude-3-5-sonnet")
         self.messages = []
         self.primer = primer
           

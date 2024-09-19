@@ -25,12 +25,15 @@ from prompt_toolkit.key_binding import KeyBindings
 import readline # needed for prompt editing
 
 from .utils import number_to_ordinal
+from .config import load_config
 
 # Providers
 from .ollama_provider import OllamaClient
 from .openai_provider import OpenAIClient
 from .anthropic_provider import AnthropicClient
 from .gemini_provider import GeminiClient
+
+config = load_config()
 
 bindings = KeyBindings()
 
@@ -114,11 +117,11 @@ def provider_factory(provider_hint):
     if provider_full_name == 'ollama':
         return OllamaClient(primer=primer())
     elif provider_full_name == 'openai':
-        return OpenAIClient(primer=primer())
+        return OpenAIClient(config, primer=primer())
     elif provider_full_name == 'anthropic':
-        return AnthropicClient(primer=primer())
+        return AnthropicClient(config, primer=primer())
     elif provider_full_name == 'gemini':
-        return GeminiClient(primer=primer())
+        return GeminiClient(config, primer=primer())
 
 
 
