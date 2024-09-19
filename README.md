@@ -29,14 +29,14 @@ A command-line tool for interacting with LLMs.
 # Possible future features
 
 - Support for more LLM providers
-- Command-line completion (for providers and models)
 - Support RTL languages
 - Save output to file
-- Patterns library (a-la fabrik)
+- Patterns library (a-la fabric)
 - Upload files
 - Aggregate responses from multiple providers
 - Support more modes (image generation, transcription, etc.)
 - Automated testing
+- track total cost
 
 # Installation
 
@@ -100,6 +100,8 @@ Here are the links to the API sign-up pages (or download in case of Ollama):
 - [Anthropic](https://console.anthropic.com/)
 - [Ollama](https://ollama.com/)
 - [Gemini](https://ai.google.dev/gemini-api/docs)
+
+You can configure the default models you want to use in `config.json`
 
 # Contributing
 

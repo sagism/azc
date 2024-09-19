@@ -35,6 +35,7 @@ class OpenAIClient(LLMProvider):
             models = [m.id for m in self.client.models.list().data]
             self.models = models
             self.models_cache.set(self.provider, models)
+            print(f"Got {len(self.models)} models. Type 'l' to list them.")
         except NotFoundError as e:
             # sometimes I get a 404 on this
             print(f"Error fetching models: {e}. Either use a different model or restart and try again.")

@@ -38,7 +38,7 @@ config = load_config()
 bindings = KeyBindings()
 
 def is_command(string: str) -> bool:
-    if string.strip().lower() in ('exit', 'quit', 'q', 'p', 'l', 'm', 'p', 'n', 'h', '?', ''): return True
+    if string.strip().lower() in ('exit', 'quit', 'q', 'p', 'l', 'm', 'p', 'n', 'h', 'r', '?', ''): return True
     elif string.strip().startswith("p "): return True
     else: return False
 
@@ -125,7 +125,6 @@ def provider_factory(provider_hint):
 
 
 
-
 class FilteredHistory(FileHistory):
     """
     This class is a custom history class that filters out commands we don't want to save
@@ -143,6 +142,7 @@ Just type your message and press enter to start a chat.
 | Command | Description |
 |---------|-------------|
 | l       | List models |
+| r       | Refresh models |
 | n       | New chat ( )   |
 | ? or h  | Help (this screen) |
 | m       | Change model |
@@ -197,7 +197,7 @@ def main(initial_prompt=None):
         return HTML(f' Using <b>{client}</b> ({number_to_ordinal(client.n_user_messages()+1)} message)')
 
 
-    our_history = FilteredHistory(".example-history-file")
+    our_history = FilteredHistory(".azc-history-file")
     session = PromptSession(history=our_history)
 
 
@@ -232,6 +232,10 @@ def main(initial_prompt=None):
 
             if user_input.strip().lower() in ('n'):
                 client.new_chat()
+                continue
+
+            if user_input.strip().lower() in ('r'):
+                client.refresh_models()
                 continue
 
             if user_input.strip().lower() in ('h', '?'):

@@ -13,6 +13,10 @@ class LLMProvider:
     def list_models(self):
         """ List all models available for this provider """
         return []
+    
+    def refresh_models(self):
+        """ Refresh the list of models available for this provider """
+        print("not implemented for this provider")
 
     def chat(self, message):
         """ Chat with the LLM provider 
