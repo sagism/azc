@@ -10,4 +10,4 @@ dist
 DEV_README.md
 Dev Todo.txt
 .models.json
-.*_history_file
+.*-history-file

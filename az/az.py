@@ -5,7 +5,6 @@ import os
 import shutil
 import argparse
 
-
 from dotenv import load_dotenv
 
 # a mix of rich and prompt_toolkit seem to hit the sweet spot for terminal UI interactivity
@@ -25,7 +24,7 @@ from prompt_toolkit.key_binding import KeyBindings
 import readline # needed for prompt editing
 
 from .utils import number_to_ordinal
-from .config import load_config
+from .config import load_config, default_model, default_provider
 
 # Providers
 from .ollama_provider import OllamaClient
@@ -94,7 +93,7 @@ class CommandsCompleter(Completer):
         
 completer = CommandsCompleter()
 
-console.print('providers configured: [yellow]' + ', '.join(providers) + '[/]')
+# console.print('providers configured: [yellow]' + ', '.join(providers) + '[/]')
 
 def primer():
     _, rows = shutil.get_terminal_size()
@@ -146,9 +145,11 @@ Just type your message and press enter to start a chat.
 | n       | New chat ( )   |
 | ? or h  | Help (this screen) |
 | m       | Change model |
-| p       | Change provider (p and space trigger autocomplete) |
+| p provider_name | Change provider (p and space trigger autocomplete) |
 | ctrl-n  | New line |
 """
+
+
 
 def main(initial_prompt=None):
     if len(providers) == 0:
@@ -187,11 +188,12 @@ def main(initial_prompt=None):
             else:
                 buffer.insert_text('\n')
 
-    provider_name = providers[0] # dumb default. should probably let user set it
+    provider_name = default_provider()
+    provider_name = provider_name if provider_name else providers[0]
+    
     client = provider_factory(provider_name)
-    console.print(f'using: [green]{client}[/]')
-    console.print('[magenta]type ? or h for help[/]')
-
+    # console.print(f'using: [green]{client}[/]')
+    # console.print('[magenta]type ? or h for help[/]')
 
     def bottom_toolbar():
         return HTML(f' Using <b>{client}</b> ({number_to_ordinal(client.n_user_messages()+1)} message)')
