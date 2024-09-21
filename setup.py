@@ -12,7 +12,7 @@ readme_content_without_images = remove_images_from_markdown(readme_content)
 
 setup(
     name='azc',
-    version='1.0.6',
+    version='1.0.7',
     packages=find_packages(),
     install_requires=open('requirements.txt').read().splitlines(),
     author='Sagi Smolarski',

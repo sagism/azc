@@ -67,22 +67,26 @@ You can specify the first prompt as a command-line argument:
 
 ## Command-line parameters
 
-- default parameter: first prompt
-- `-d` / `--double-enter` - Press enter twice to submit - This is useful for those who want to use use multi-line prompts without pressing ctrl-j to add new line.
-- `-b` / `--batch` - Exit after the first response
-- `-v` / `--verbose` - Print verbose output
-- `--provider` - The provider to use (e.g. `openai` or `ollama`). Abbreviations allowed, like `op` for `openai`
-- `--model` - The model to use. Abbreviations allowed, like `tu` for `gpt-3.5-turbo`
+| Parameter               | Description                                                                                                                        |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| (default)               | First prompt                                                                                                                       |
+| `-d` / `--double-enter` | Press enter twice to submit - This is useful for those who want to use multi-line prompts without pressing ctrl-j to add new line. |
+| `-b` / `--batch`        | Exit after the first response                                                                                                      |
+| `-v` / `--verbose`      | Print verbose output                                                                                                               |
+| `--provider`            | The provider to use (e.g. `openai` or `ollama`). Abbreviations allowed, like `op` for `openai`                                     |
+| `--model`               | The model to use. Abbreviations allowed, like `tu` for `gpt-3.5-turbo`                                                             |
 
 # Commands
 
-- `q` or `exit` - exit the program
-- `h` or `?` - show help
-- `l` - list models
-- `n` - start new chat
-- `p` - Change provider
-- `m` - Change model
-- `ctrl-n` - new line
+| Command       | Description      |
+| ------------- | ---------------- |
+| `q` or `exit` | Exit the program |
+| `h` or `?`    | Show help        |
+| `l`           | List models      |
+| `n`           | Start new chat   |
+| `p`           | Change provider  |
+| `m`           | Change model     |
+| `ctrl-n`      | New line         |
 
 # Setup
 
