@@ -158,6 +158,7 @@ def main(initial_prompt=None):
     
     parser = argparse.ArgumentParser(description="Chat with an AI assistant")
     parser.add_argument("-d", "--double-enter", action="store_true", help="Enable 'press enter twice to submit' mode")
+    parser.add_argument("-b", "--batch", action="store_true", help="Not interactive, just do one chat and exit")
     parser.add_argument("initial_prompt", nargs='?', help="Initial prompt (if provided without a flag)")
     args = parser.parse_args()
     initial_prompt = args.initial_prompt
@@ -196,7 +197,7 @@ def main(initial_prompt=None):
     # console.print('[magenta]type ? or h for help[/]')
 
     def bottom_toolbar():
-        return HTML(f' Using <b>{client}</b> ({number_to_ordinal(client.n_user_messages()+1)} message)')
+        return HTML(f' Using <b>{client}</b> ({number_to_ordinal(client.n_user_messages()+1)} message)     <ansicyan>enter ? or h for help</ansicyan> ')
 
 
     our_history = FilteredHistory(".azc-history-file")
@@ -204,13 +205,15 @@ def main(initial_prompt=None):
 
 
     done=False
-
+    
     try:
         while not done:
             # If there's an initial prompt, process it first
             if initial_prompt:
                 user_input = initial_prompt
                 initial_prompt = None
+                if args.batch:
+                    done=True
             else:
                 # Get user input using prompt_toolkit
                 with patch_stdout():
@@ -262,7 +265,7 @@ def main(initial_prompt=None):
                     console.print(f'[red]error: {e}[/]')
                 continue
 
-            title = f"{client} ({number_to_ordinal(client.n_user_messages()+1)} message)"
+            title = f"{client} ({number_to_ordinal(client.n_user_messages()+1)} message)" if not args.batch else None
 
             assistant_panel = Panel(
                 Align.left(""),
@@ -275,10 +278,11 @@ def main(initial_prompt=None):
             current_message = ""
 
             with Live(assistant_panel, console=console, refresh_per_second=2, vertical_overflow='ellipsis') as live:
-                console.print(f'...')
+                if args.double_enter:
+                    console.print(f'...')
                 for chunk in client.chat(user_input):
                     current_message += chunk
-                    assistant_panel = Panel(
+                    new_panel = Panel(
                         Align.left(Markdown(current_message)),
                         title=title,
                         style="yellow",
@@ -286,12 +290,13 @@ def main(initial_prompt=None):
                         border_style="none",
                         box=EMPTY
                     )
-                    live.update(assistant_panel)
+                    live.update(new_panel, refresh=True)
 
     except KeyboardInterrupt:
         done = True
     finally:
-        console.print(":wave: [italic]Bye[/]")
+        if not args.batch:
+            console.print(":wave: [italic]Bye[/]")
 
 if __name__ == "__main__":
     main()

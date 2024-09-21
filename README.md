@@ -45,17 +45,25 @@ A command-line tool for interacting with LLMs.
 # Running
 
     % azc
-    azc> how tall is the eifel tower?
-    openai:gpt-4o-mini: The Eiffel Tower is approximately 1,083 feet (330 meters) tall, including its antennas. The structure itself, without antennas, is about 1,063 feet (324 meters).
+    azc> how tall is the eiffel tower?
+                                      ollama:llama3.1:latest (1st message)
+      The Eiffel Tower stands at an impressive height of:
+
+      • 324 meters (1,063 feet) tall, including its antenna.
+      • 302.9 meters (994.7 feet) tall, excluding its antenna.
+
+      It was the world's tallest man-made structure when it was first built for the 1889 World's Fair in
+      Paris.
+
     azc> q
-    Bye!
+    👋 Bye
     %
 
-    You can specify the first prompt as a command-line argument:
+You can specify the first prompt as a command-line argument:
 
-    % azc "what is the capital of the moon?"
-    openai:gpt-4o-mini: The capital of the moon is called "New Moon".
-    azc>
+    % azc -b "What is the capital of Panama?"
+    The capital of Panama is Panama City.
+    %
 
 ## Command-line parameters
 
