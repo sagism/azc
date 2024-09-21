@@ -69,6 +69,8 @@ You can specify the first prompt as a command-line argument:
 
 - default parameter: first prompt
 - `-d` / `--double-enter` - Press enter twice to submit - This is useful for those who want to use use multi-line prompts without pressing ctrl-j to add new line.
+- `-b` / `--batch` - Exit after the first response
+- `-v` / `--verbose` - Print verbose output
 - `--provider` - The provider to use (coming soon)
 - `--model` - The model to use (coming soon)
 

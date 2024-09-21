@@ -32,6 +32,8 @@ from .openai_provider import OpenAIClient
 from .anthropic_provider import AnthropicClient
 from .gemini_provider import GeminiClient
 
+HISTORY_FILE_NAME = ".azc-history-file"
+
 config = load_config()
 
 bindings = KeyBindings()
@@ -93,7 +95,6 @@ class CommandsCompleter(Completer):
         
 completer = CommandsCompleter()
 
-# console.print('providers configured: [yellow]' + ', '.join(providers) + '[/]')
 
 def primer():
     _, rows = shutil.get_terminal_size()
@@ -159,30 +160,27 @@ def main(initial_prompt=None):
     parser = argparse.ArgumentParser(description="Chat with an AI assistant")
     parser.add_argument("-d", "--double-enter", action="store_true", help="Enable 'press enter twice to submit' mode")
     parser.add_argument("-b", "--batch", action="store_true", help="Not interactive, just do one chat and exit")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
     parser.add_argument("initial_prompt", nargs='?', help="Initial prompt (if provided without a flag)")
     args = parser.parse_args()
     initial_prompt = args.initial_prompt
+
+    if args.verbose:
+        console.print('providers configured: [yellow]' + ', '.join(providers) + '[/]')
 
     if args.double_enter:
         console.print("type <enter> twice to submit...")
         @bindings.add('enter')
         def _(event):
             buffer = event.current_buffer
-            # print(f'handling enter [{buffer.document.text}]')
             accepted = False
             if buffer.document.text.strip() == '':
-                # print("empty")
                 accepted = True
             elif is_command(buffer.document.text):
-                # print("is command")
                 accepted = True
             elif buffer.document.text.endswith('\n') and buffer.document.is_cursor_at_the_end:
-                # print("dbl-newline")
-                # Submit if there's at least two newlines and cursor is at the end
                 accepted = True
             else:
-                # print("newline")
-                # buffer.insert_text('\n')
                 accepted = False
             if accepted:
                 buffer.validate_and_handle()
@@ -193,16 +191,16 @@ def main(initial_prompt=None):
     provider_name = provider_name if provider_name else providers[0]
     
     client = provider_factory(provider_name)
-    # console.print(f'using: [green]{client}[/]')
-    # console.print('[magenta]type ? or h for help[/]')
+    
+    if args.verbose:
+        console.print(f'using: [green]{client}[/]')
+        console.print('[magenta]type ? or h for help[/]')
 
     def bottom_toolbar():
         return HTML(f' Using <b>{client}</b> ({number_to_ordinal(client.n_user_messages()+1)} message)     <ansicyan>enter ? or h for help</ansicyan> ')
 
-
-    our_history = FilteredHistory(".azc-history-file")
+    our_history = FilteredHistory(HISTORY_FILE_NAME)
     session = PromptSession(history=our_history)
-
 
     done=False
     
@@ -277,6 +275,8 @@ def main(initial_prompt=None):
 
             current_message = ""
 
+            # Note that vertical_overflow="visible" causes realtime updates of rendered markdown beyond the full window height,
+            # but it leaves a trail of partially rendered markdown behind when new content is added, hence it is not used
             with Live(assistant_panel, console=console, refresh_per_second=2, vertical_overflow='ellipsis') as live:
                 if args.double_enter:
                     console.print(f'...')
@@ -290,7 +290,7 @@ def main(initial_prompt=None):
                         border_style="none",
                         box=EMPTY
                     )
-                    live.update(new_panel, refresh=True)
+                    live.update(new_panel, refresh=False)
 
     except KeyboardInterrupt:
         done = True
