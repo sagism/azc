@@ -1,8 +1,8 @@
 {
-  "default-provider": "ollama",
+  "default-provider": "openai",
   "default-models": {
     "openai": {
-      "model": "gpt-4o"
+      "model": "gpt-4o-mini"
     },
     "anthropic": {
       "model": "claude-3-5-sonnet"

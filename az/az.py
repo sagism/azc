@@ -158,6 +158,8 @@ def main(initial_prompt=None):
         return
     
     parser = argparse.ArgumentParser(description="Chat with an AI assistant")
+    parser.add_argument("-p", "--provider", help="The provider to use, e.g. 'openai' or 'ollama'. Abbreviations allowed, like 'op' for 'openai'")
+    parser.add_argument("-m", "--model", help="The model to use")
     parser.add_argument("-d", "--double-enter", action="store_true", help="Enable 'press enter twice to submit' mode")
     parser.add_argument("-b", "--batch", action="store_true", help="Not interactive, just do one chat and exit")
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
@@ -187,10 +189,15 @@ def main(initial_prompt=None):
             else:
                 buffer.insert_text('\n')
 
-    provider_name = default_provider()
+
+
+    provider_name = args.provider if args.provider else default_provider()
     provider_name = provider_name if provider_name else providers[0]
     
     client = provider_factory(provider_name)
+
+    if args.model:
+        client.model = args.model
     
     if args.verbose:
         console.print(f'using: [green]{client}[/]')

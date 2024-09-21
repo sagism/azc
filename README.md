@@ -4,7 +4,7 @@
 
 A command-line tool for interacting with LLMs.
 
-![AZC screenshot](assets/recipe.gif)
+![AZC screenshot](assets/sample.gif)
 
 # Why should you use this?
 
@@ -71,20 +71,8 @@ You can specify the first prompt as a command-line argument:
 - `-d` / `--double-enter` - Press enter twice to submit - This is useful for those who want to use use multi-line prompts without pressing ctrl-j to add new line.
 - `-b` / `--batch` - Exit after the first response
 - `-v` / `--verbose` - Print verbose output
-- `--provider` - The provider to use (coming soon)
-- `--model` - The model to use (coming soon)
-
-example:
-
-    % azc "knock knock"
-    providers configured: openai, ollama, anthropic, gemini
-    using: openai:gpt-4o-mini
-    type ? or h for help
-    ...
-    openai:gpt-4o-mini (1st message)
-    Who's there?
-
-    azc>
+- `--provider` - The provider to use (e.g. `openai` or `ollama`). Abbreviations allowed, like `op` for `openai`
+- `--model` - The model to use. Abbreviations allowed, like `tu` for `gpt-3.5-turbo`
 
 # Commands
 
@@ -112,6 +100,11 @@ Here are the links to the API sign-up pages (or download in case of Ollama):
 - [Gemini](https://ai.google.dev/gemini-api/docs)
 
 You can configure the default models you want to use in `config.json`
+
+# Limitations
+
+- Streaming updates are limited to screen height (after that it displays ellipsis and will update the display only when the response is complete)
+- No support for RTL languages
 
 # Contributing
 

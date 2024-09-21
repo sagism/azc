@@ -34,7 +34,7 @@ class LLMProvider:
             if value in m:
                 self._model = m
                 return
-        raise ValueError(f"Model {value} not found")
+        raise ValueError(f"Model {value} not found for provider {self.provider}")
     
     def new_chat(self, primer=None):
         """ Create a new chat (erase messages history)
