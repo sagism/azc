@@ -1,16 +1,19 @@
-from dotenv import load_dotenv
-load_dotenv()
+import os
+
 
 from .llm_provider import LLMProvider
 from openai import OpenAI, NotFoundError
 from .cache import FileCache
 
 
+
+MODELS_CACHE_FILE = os.path.expanduser("~/.config/.azc_models.json" if os.path.exists(os.path.expanduser("~/.config")) else "~/.azc_models.json")
+
 class OpenAIClient(LLMProvider):
     def __init__(self, config, primer=None):
         self.provider = 'openai'
         self.client = OpenAI()
-        self.models_cache = FileCache(".models.json")
+        self.models_cache = FileCache(MODELS_CACHE_FILE)
         
         self.list_models()
         self.config = config

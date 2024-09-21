@@ -1,7 +1,6 @@
 from .llm_provider import LLMProvider
 import anthropic
-from dotenv import load_dotenv
-load_dotenv()
+
 
 
 class AnthropicClient(LLMProvider):

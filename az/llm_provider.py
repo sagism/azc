@@ -1,4 +1,7 @@
 """ Base class for LLM providers """
+import os
+from dotenv import load_dotenv
+load_dotenv(os.path.expanduser("~/.config/.env" if os .path.exists(os.path.expanduser("~/.config")) else "~/.env"))
 
 
 class LLMProvider:

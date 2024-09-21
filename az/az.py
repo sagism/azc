@@ -32,7 +32,7 @@ from .openai_provider import OpenAIClient
 from .anthropic_provider import AnthropicClient
 from .gemini_provider import GeminiClient
 
-HISTORY_FILE_NAME = ".azc-history-file"
+HISTORY_FILE_NAME = os.path.expanduser("~/.config/.azc_history" if os.path.exists(os.path.expanduser("~/.config")) else "~/.azc_history")
 
 config = load_config()
 
@@ -63,10 +63,10 @@ EMPTY: Box = Box(
     ascii=True,
 )
 
-load_dotenv()
-
 # Initialize the console
 console = Console()
+
+load_dotenv(os.path.expanduser("~/.config/.env" if os .path.exists(os.path.expanduser("~/.config")) else "~/.env"))
 
 providers = []
 if 'OPENAI_API_KEY' in os.environ:

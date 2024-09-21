@@ -37,10 +37,18 @@ A command-line tool for interacting with LLMs.
 - Support more modes (image generation, transcription, etc.)
 - Automated testing
 - track total cost
+- binaries (windows, mac, linux)
 
 # Installation
 
     pip install azc
+
+if you want to make it available system-wide (any folder, without having to activate your python environment), you can install it system-wide:
+
+    echo 'alias azc="$HOME/projects/azc/env/bin/azc"' >> ~/.bashrc
+
+- Replace `~/.bashrc` with the shell you are using (zsh, bash, etc.)
+- Replace `$HOME/projects/azc/env/bin/azc` with the path to the azc executable
 
 # Running
 
@@ -93,8 +101,8 @@ You can specify the first prompt as a command-line argument:
 You will need to configure at least one LLM API.
 
 You should create a `.env` file which contains your API Key/s.
-
-See `.env.sample` for a sample file
+The `.env` file should be located in home directory, either directly under `$HOME` or under `$HOME/.config/`, the latter taking precedence.
+See `.env.sample` for a sample `.env` file, with the expected environment variables' names. Remove those that are not relevant to you.
 
 Here are the links to the API sign-up pages (or download in case of Ollama):
 
@@ -103,7 +111,8 @@ Here are the links to the API sign-up pages (or download in case of Ollama):
 - [Ollama](https://ollama.com/)
 - [Gemini](https://ai.google.dev/gemini-api/docs)
 
-You can configure the default models you want to use in `config.json`
+You can configure the default models you want to use in `azc_config.json`.
+This file is expected to be found under `~/.config/azc_config.json` or `~/.azc_config.json` if you don't have a `~/.config` folder.
 
 # Limitations
 

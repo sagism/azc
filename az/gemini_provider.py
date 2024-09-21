@@ -1,6 +1,4 @@
 import os
-from dotenv import load_dotenv
-load_dotenv()
 
 from .llm_provider import LLMProvider
 import google.generativeai as genai
