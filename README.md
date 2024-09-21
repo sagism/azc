@@ -49,6 +49,7 @@ if you want to make it available system-wide (any folder, without having to acti
 
 - Replace `~/.bashrc` with the shell you are using (zsh, bash, etc.)
 - Replace `$HOME/projects/azc/env/bin/azc` with the path to the azc executable
+- On Windows, you can add the path to your PATH environment variable (ask your nearest LLM for more details)
 
 # Running
 
@@ -81,20 +82,20 @@ You can specify the first prompt as a command-line argument:
 | `-d` / `--double-enter` | Press enter twice to submit - This is useful for those who want to use multi-line prompts without pressing ctrl-j to add new line. |
 | `-b` / `--batch`        | Exit after the first response                                                                                                      |
 | `-v` / `--verbose`      | Print verbose output                                                                                                               |
-| `--provider`            | The provider to use (e.g. `openai` or `ollama`). Abbreviations allowed, like `op` for `openai`                                     |
-| `--model`               | The model to use. Abbreviations allowed, like `tu` for `gpt-3.5-turbo`                                                             |
+| `-p` / `--provider`     | The provider to use (e.g. `openai` or `ollama`). Abbreviations allowed, like `op` for `openai`                                     |
+| `-m` /`--model`         | The model to use. Abbreviations allowed, like `tu` for `gpt-3.5-turbo`                                                             |
 
-# Commands
+## Commands
 
-| Command       | Description      |
-| ------------- | ---------------- |
-| `q` or `exit` | Exit the program |
-| `h` or `?`    | Show help        |
-| `l`           | List models      |
-| `n`           | Start new chat   |
-| `p`           | Change provider  |
-| `m`           | Change model     |
-| `ctrl-n`      | New line         |
+| Command       | Description                                                                    |
+| ------------- | ------------------------------------------------------------------------------ |
+| `q` or `exit` | Exit the program                                                               |
+| `h` or `?`    | Show help                                                                      |
+| `l`           | List models                                                                    |
+| `n`           | Start new chat                                                                 |
+| `p`           | Change provider. `p ` - (`p` followed by a space) trigger auto-completion menu |
+| `m`           | Change model                                                                   |
+| `ctrl-n`      | New line                                                                       |
 
 # Setup
 
