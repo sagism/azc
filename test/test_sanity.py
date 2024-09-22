@@ -2,10 +2,8 @@ import io
 import re
 from unittest.mock import patch
 
-
-
-
 from az.az import main
+
 
 class MockLLM:
     def __init__(self, response):
@@ -23,10 +21,6 @@ class MockLLM:
     
     def __str__(self):
         return "MockLLM"
-    
-    def __repr__(self):
-        return "MockLLM"
-
 
 
 def test_cli_app():

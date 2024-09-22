@@ -28,16 +28,15 @@ A command-line tool for interacting with LLMs.
 
 # Possible future features
 
-- Support for more LLM providers
+- Support more LLM providers (Perplexity, Groq...)
 - Support RTL languages
 - Save output to file
 - Patterns library (a-la fabric)
 - Upload files
 - Aggregate responses from multiple providers
 - Support more modes (image generation, transcription, etc.)
-- Automated testing
-- track total cost
-- binaries (windows, mac, linux)
+- Track total cost of API calls
+- Add to homebrew
 
 # Installation
 
