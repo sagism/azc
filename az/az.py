@@ -222,12 +222,17 @@ def main(initial_prompt=None):
             else:
                 # Get user input using prompt_toolkit
                 with patch_stdout():
-                    user_input = session.prompt(
-                        HTML(f'<ansicyan>azc></ansicyan> '),
-                        completer=completer,
-                        bottom_toolbar=bottom_toolbar,
-                        key_bindings=bindings
-                    )
+                    try:
+                        user_input = session.prompt(
+                            HTML(f'<ansicyan>azc></ansicyan> '),
+                            completer=completer,
+                            bottom_toolbar=bottom_toolbar,
+                            key_bindings=bindings
+                        )
+                    except EOFError:
+                        done = True
+                        break
+
 
             if user_input.strip().lower() == '':
                 # Some people like to press enter to get a new line
@@ -305,7 +310,7 @@ def main(initial_prompt=None):
         if not args.batch:
             console.print(":wave: [italic]Bye[/]")
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
     main()
 
 

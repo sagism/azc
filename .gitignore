@@ -12,3 +12,5 @@ Dev Todo.txt
 .models.json
 .*-history-file
 internal
+htmlcov
+.coverage

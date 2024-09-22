@@ -25,7 +25,7 @@ def remove_images_from_markdown(markdown_text):
     return re.sub(image_pattern, '', markdown_text)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
     # demo
     import sys
     with open(sys.argv[1], 'r') as f:
