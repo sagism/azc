@@ -66,7 +66,7 @@ EMPTY: Box = Box(
 # Initialize the console
 console = Console()
 
-load_dotenv(os.path.expanduser("~/.config/.env" if os .path.exists(os.path.expanduser("~/.config")) else "~/.env"))
+load_dotenv(os.path.expanduser("~/.config/.env") if os.path.isfile(os.path.expanduser("~/.config/.env")) else os.path.expanduser("~/.env"))
 
 providers = []
 if 'OPENAI_API_KEY' in os.environ:
