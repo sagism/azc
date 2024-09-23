@@ -4,7 +4,7 @@ from .llm_provider import LLMProvider
 import google.generativeai as genai
 
 
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 
 class GeminiClient(LLMProvider):
     def __init__(self, config, primer=None):
