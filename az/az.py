@@ -5,8 +5,6 @@ import os
 import shutil
 import argparse
 
-from dotenv import load_dotenv
-
 # a mix of rich and prompt_toolkit seem to hit the sweet spot for terminal UI interactivity
 from rich.console import Console
 from rich.markdown import Markdown
@@ -20,6 +18,7 @@ from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.key_binding import KeyBindings
+
 
 import readline # needed for prompt editing
 
@@ -44,6 +43,11 @@ def is_command(string: str) -> bool:
     else: return False
 
 
+def get_input():
+    # added so we can override input for testing
+    return None
+
+
 # Bind 'Control+n' to insert a newline
 @bindings.add('c-n')
 def insert_newline(event):
@@ -66,7 +70,9 @@ EMPTY: Box = Box(
 # Initialize the console
 console = Console()
 
-load_dotenv(os.path.expanduser("~/.config/.env" if os .path.exists(os.path.expanduser("~/.config")) else "~/.env"))
+# this is done by the providers so it's not needed here
+# load_dotenv(os.path.expanduser("~/.config/.env" if os .path.exists(os.path.expanduser("~/.config")) else "~/.env"))
+
 
 providers = []
 if 'OPENAI_API_KEY' in os.environ:
@@ -207,7 +213,7 @@ def main(initial_prompt=None):
         return HTML(f' Using <b>{client}</b> ({number_to_ordinal(client.n_user_messages()+1)} message)     <ansicyan>enter ? or h for help</ansicyan> ')
 
     our_history = FilteredHistory(HISTORY_FILE_NAME)
-    session = PromptSession(history=our_history)
+    session = PromptSession(history=our_history, input=get_input())
 
     done=False
     

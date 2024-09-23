@@ -3,6 +3,8 @@ repos:
      hooks:
        - id: run-tests
          name: Run Tests
-         entry: env/bin/pytest
-         language: system  # or 'python' if you want a specific environment
+         # entry: ./env/bin/python -m pytest -m "not expensive"
+         # entry: bash -c './env/bin/python -m pytest -m "not expensive" --cov=az --cov-append --cov-report= --no-summary && coverage combine && coverage report -m'
+         entry: ./env/bin/python -m pytest -m "not expensive" --cov=az --cov-append
+         language: python  # or 'python' if you want a specific environment
          types: [python]

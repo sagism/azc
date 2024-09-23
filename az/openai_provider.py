@@ -10,7 +10,7 @@ from .cache import FileCache
 MODELS_CACHE_FILE = os.path.expanduser("~/.config/.azc_models.json" if os.path.exists(os.path.expanduser("~/.config")) else "~/.azc_models.json")
 
 class OpenAIClient(LLMProvider):
-    def __init__(self, config, primer=None):
+    def __init__(self, config={}, primer=None):
         self.provider = 'openai'
         self.client = OpenAI()
         self.models_cache = FileCache(MODELS_CACHE_FILE)
@@ -63,7 +63,7 @@ class OpenAIClient(LLMProvider):
         return current_message
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
     client = OpenAIClient(primer="Limit your response to 300 characters or less")
     for text in client.chat("I'm traveling to Madrid soon (mid-October) with my wife. We love food, history and shopping. We've been there before. Can you recommend a few destinations/activities off the beaten path? We're staying in the city center and will be there for 3 days. We're looking for authentic experiences, not tourist traps."):
         print(text, end="", flush=True)

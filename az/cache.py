@@ -34,7 +34,7 @@ class FileCache:
         self._save_cache()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
     import random
     if os.path.exists("cache.json") and random.random() < 0.5:
         print("removing cache.json")
