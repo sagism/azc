@@ -4,7 +4,7 @@ import anthropic
 
 
 class AnthropicClient(LLMProvider):
-    def __init__(self, config, primer=None):
+    def __init__(self, config={}, primer=None):
         self.provider = 'anthropic'
         self.client = anthropic.Anthropic()
         self.models = self.list_models()
@@ -39,7 +39,7 @@ class AnthropicClient(LLMProvider):
             self.primer = primer
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
     client = AnthropicClient(primer="Limit your response to 300 characters or less")
     for text in client.chat("I'm traveling to Madrid soon (mid-October) with my wife. We love food, history and shopping. We've been there before. Can you recommend a few destinations/activities off the beaten path? We're staying in the city center and will be there for 3 days. We're looking for authentic experiences, not tourist traps."):
         print(text, end="", flush=True)

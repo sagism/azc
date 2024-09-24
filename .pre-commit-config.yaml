@@ -3,6 +3,7 @@ repos:
      hooks:
        - id: run-tests
          name: Run Tests
-         entry: env/bin/pytest
-         language: system  # or 'python' if you want a specific environment
+         entry: ./env/bin/pytest -m "not expensive"
+         language: python  # or 'python' if you want a specific environment
          types: [python]
+         pass_filenames: false

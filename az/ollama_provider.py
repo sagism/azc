@@ -72,7 +72,7 @@ class OllamaClient(LLMProvider):
         return current_message  # Return the final assembled message
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
     client = OllamaClient(primer="Limit your response to 300 characters or less")
     for text in client.chat(
         "I'm traveling to Madrid soon (mid-October) with my wife. We love food, history, and shopping. We've been there before. Can you recommend a few destinations/activities off the beaten path? We're staying in the city center and will be there for 3 days. We're looking for authentic experiences, not tourist traps."
