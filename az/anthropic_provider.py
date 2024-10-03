@@ -31,6 +31,7 @@ class AnthropicClient(LLMProvider):
                 ) as stream:
             for text in stream.text_stream:
                 yield text
+        self.messages.append({"role": "assistant", "content": text})
 
 
     def new_chat(self, primer=None):
@@ -41,6 +42,11 @@ class AnthropicClient(LLMProvider):
 
 if __name__ == "__main__": # pragma: no cover
     client = AnthropicClient(primer="Limit your response to 300 characters or less")
-    for text in client.chat("I'm traveling to Madrid soon (mid-October) with my wife. We love food, history and shopping. We've been there before. Can you recommend a few destinations/activities off the beaten path? We're staying in the city center and will be there for 3 days. We're looking for authentic experiences, not tourist traps."):
+    for text in client.chat("Provide a list of 7 things I could do when I have a spare hour at home, which won't waste my time?"):
+        print(text, end="", flush=True)
+    print()
+    print("---")
+    
+    for text in client.chat("out of those, which one would you recommend?"):
         print(text, end="", flush=True)
     print()
