@@ -22,14 +22,14 @@ from prompt_toolkit.key_binding import KeyBindings
 
 import readline # needed for prompt editing
 
-from .utils import number_to_ordinal
-from .config import load_config, default_model, default_provider
+from az.utils import number_to_ordinal
+from az.config import load_config, default_model, default_provider
 
 # Providers
-from .ollama_provider import OllamaClient
-from .openai_provider import OpenAIClient
-from .anthropic_provider import AnthropicClient
-from .gemini_provider import GeminiClient
+from az.ollama_provider import OllamaClient
+from az.openai_provider import OpenAIClient
+from az.anthropic_provider import AnthropicClient
+from az.gemini_provider import GeminiClient
 
 HISTORY_FILE_NAME = os.path.expanduser("~/.config/.azc_history" if os.path.exists(os.path.expanduser("~/.config")) else "~/.azc_history")
 

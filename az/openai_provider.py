@@ -1,9 +1,9 @@
 import os
 
 
-from .llm_provider import LLMProvider
+from az.llm_provider import LLMProvider
 from openai import OpenAI, NotFoundError
-from .cache import FileCache
+from az.cache import FileCache
 
 
 

@@ -1,6 +1,6 @@
 import os
 
-from .llm_provider import LLMProvider
+from az.llm_provider import LLMProvider
 import google.generativeai as genai
 
 

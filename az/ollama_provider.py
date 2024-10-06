@@ -3,7 +3,7 @@ import os
 
 import requests
 
-from .llm_provider import LLMProvider
+from az.llm_provider import LLMProvider
 
 
 class OllamaClient(LLMProvider):
