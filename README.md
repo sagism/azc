@@ -9,7 +9,7 @@ A command-line tool for interacting with LLMs.
 # Why should you use this?
 
 - If you're a command-line junkie, you don't need to switch to another tool to chat with your LLM
-- One tool, multiple LLMs (OpenAI, Anthropic, Ollama, Gemini) - Why settle for one when you can have them all?
+- One tool, multiple LLMs (OpenAI, Anthropic, Ollama, Gemini...) - Why settle for one when you can have them all?
 - Pay-as-you-go pricing for LLM providers (Cheaper in many cases)
 
 # Features
@@ -19,6 +19,7 @@ A command-line tool for interacting with LLMs.
   - OpenAI
   - Anthropic
   - Gemini
+  - Grok
 - Streaming responses (see response as it is being generated)
 - Persistent command-line history (use up and down arrows to navigate)
 - Chat history & reset (full discussion, start new chat)
@@ -110,6 +111,7 @@ Here are the links to the API sign-up pages (or download in case of Ollama):
 - [Anthropic](https://console.anthropic.com/)
 - [Ollama](https://ollama.com/)
 - [Gemini](https://ai.google.dev/gemini-api/docs)
+- [Grok](https://docs.x.ai/api/integrations)
 
 You can configure the default models you want to use in `azc_config.json`.
 This file is expected to be found under `~/.config/azc_config.json` or `~/.azc_config.json` if you don't have a `~/.config` folder.
@@ -122,6 +124,10 @@ This file is expected to be found under `~/.config/azc_config.json` or `~/.azc_c
 # Contributing
 
 Contributions are welcome! Please feel free to submit a PR.
+
+To run in development:
+
+    % python -m az.az
 
 # License
 

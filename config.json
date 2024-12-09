@@ -12,6 +12,9 @@
     },
     "ollama": {
       "model": "llama3.1:latest"
+    },
+    "grok": {
+      "model": "grok-beta"
     }
   }
 }

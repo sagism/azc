@@ -30,6 +30,7 @@ from az.ollama_provider import OllamaClient
 from az.openai_provider import OpenAIClient
 from az.anthropic_provider import AnthropicClient
 from az.gemini_provider import GeminiClient
+from az.grok_provider import GrokClient
 
 HISTORY_FILE_NAME = os.path.expanduser("~/.config/.azc_history" if os.path.exists(os.path.expanduser("~/.config")) else "~/.azc_history")
 
@@ -83,6 +84,9 @@ if 'ANTHROPIC_API_KEY' in os.environ:
     providers.append('anthropic')
 if 'GEMINI_API_KEY' in os.environ:
     providers.append('gemini')
+if 'XAI_API_KEY' in os.environ:
+    providers.append('grok')
+
 
 # provider_completer = WordCompleter([f"p {provider}" for provider in providers], ignore_case=True)
 
@@ -128,6 +132,8 @@ def provider_factory(provider_hint):
         return AnthropicClient(config, primer=primer())
     elif provider_full_name == 'gemini':
         return GeminiClient(config, primer=primer())
+    elif provider_full_name == 'grok':
+        return GrokClient(config, primer=primer())
 
 
 
