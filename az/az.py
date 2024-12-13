@@ -4,6 +4,7 @@ import sys
 import os
 import shutil
 import argparse
+import importlib
 
 # a mix of rich and prompt_toolkit seem to hit the sweet spot for terminal UI interactivity
 from rich.console import Console
@@ -24,13 +25,6 @@ import readline # needed for prompt editing
 
 from az.utils import number_to_ordinal
 from az.config import load_config, default_model, default_provider
-
-# Providers
-from az.ollama_provider import OllamaClient
-from az.openai_provider import OpenAIClient
-from az.anthropic_provider import AnthropicClient
-from az.gemini_provider import GeminiClient
-from az.grok_provider import GrokClient
 
 HISTORY_FILE_NAME = os.path.expanduser("~/.config/.azc_history" if os.path.exists(os.path.expanduser("~/.config")) else "~/.azc_history")
 
@@ -76,17 +70,34 @@ console = Console()
 
 
 providers = []
-if 'OPENAI_API_KEY' in os.environ:
-    providers.append('openai')
-if 'OLLAMA_URL' in os.environ:
-    providers.append('ollama')
-if 'ANTHROPIC_API_KEY' in os.environ:
-    providers.append('anthropic')
-if 'GEMINI_API_KEY' in os.environ:
-    providers.append('gemini')
-if 'XAI_API_KEY' in os.environ:
-    providers.append('grok')
+def discover_providers():
+    """Discover providers based on config file"""
+    available_providers = {}
+    provider_configs = config.get("default-models", {})
+    
+    for provider_name in provider_configs:
+        try:
+            module_name = f"az.{provider_name}_provider"
+            class_name = "OpenAIClient" if provider_name == "openai" else f"{provider_name.capitalize()}Client"
+            
+            module = importlib.import_module(module_name)
+            client_class = getattr(module, class_name)
+            available_providers[provider_name] = client_class
+            
+            # For backwards compatibility with existing provider list
+            if f"XAI_API_KEY" in os.environ and provider_name == "grok":
+                providers.append(provider_name)
+            elif f"{provider_name.upper()}_API_KEY" in os.environ:
+                providers.append(provider_name)
+            elif f"{provider_name.upper()}_URL" in os.environ:
+                providers.append(provider_name)
+                
+        except Exception as e:
+            print(f"Warning: Could not load provider {provider_name}: {e}")
+    
+    return available_providers
 
+PROVIDERS = discover_providers()
 
 # provider_completer = WordCompleter([f"p {provider}" for provider in providers], ignore_case=True)
 
@@ -114,8 +125,9 @@ def primer():
 
 def provider_factory(provider_hint):
     provider_found = False
+    provider_full_name = None
 
-    for provider_name in providers:
+    for provider_name in PROVIDERS.keys():
         if provider_hint in provider_name:
             provider_full_name = provider_name
             provider_found = True
@@ -124,16 +136,7 @@ def provider_factory(provider_hint):
     if not provider_found:
         raise ValueError(f"Cannot find provider with <{provider_hint}>")
     
-    if provider_full_name == 'ollama':
-        return OllamaClient(primer=primer())
-    elif provider_full_name == 'openai':
-        return OpenAIClient(config, primer=primer())
-    elif provider_full_name == 'anthropic':
-        return AnthropicClient(config, primer=primer())
-    elif provider_full_name == 'gemini':
-        return GeminiClient(config, primer=primer())
-    elif provider_full_name == 'grok':
-        return GrokClient(config, primer=primer())
+    return PROVIDERS[provider_full_name](config, primer=primer())
 
 
 

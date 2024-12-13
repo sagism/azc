@@ -1,12 +1,19 @@
 # -*- mode: python ; coding: utf-8 -*-
+import os
+import glob
 
+block_cipher = None
+
+# Automatically discover all provider modules
+provider_files = glob.glob('az/*_provider.py')
+hidden_imports = [f'az.{os.path.basename(f)[:-3]}' for f in provider_files]
 
 a = Analysis(
     ['az/az.py'],
     pathex=[],
     binaries=[],
     datas=[],
-    hiddenimports=[],
+    hiddenimports=hidden_imports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
