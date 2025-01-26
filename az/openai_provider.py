@@ -2,7 +2,7 @@ import os
 
 
 from az.llm_provider import LLMProvider
-from openai import OpenAI, NotFoundError
+from openai import OpenAI, NotFoundError, RateLimitError, AuthenticationError, APIError
 from az.cache import FileCache
 
 
@@ -45,22 +45,43 @@ class OpenAIClient(LLMProvider):
 
 
     def chat(self, message):
-        self.messages.append({"role": "user", "content": message})
-        current_message = ""
-        response_stream = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=self.messages,
-                    stream=True
-                )
-        for chunk in response_stream:
-            delta = chunk.choices[0].delta
-            content = getattr(delta, 'content', '')
-            if content:
-                current_message += content
-                yield content
+        if self.primer and len(self.messages) == 0:
+            self.messages.append({"role": "user", "content": self.primer + "\n\n" + message})
+        else:
+            self.messages.append({"role": "user", "content": message})
+        
+        try:
+            response_stream = self.client.chat.completions.create(
+                model=self.model,
+                messages=self.messages,
+                stream=True,
+            )
+            
+            collected_messages = []
+            for chunk in response_stream:
+                if chunk.choices[0].delta.content is not None:
+                    collected_messages.append(chunk.choices[0].delta.content)
+                    yield chunk.choices[0].delta.content
 
-        self.messages.append({"role": "assistant", "content": current_message})
-        return current_message
+            full_response = ''.join(collected_messages)
+            self.messages.append({"role": "assistant", "content": full_response})
+            
+        except RateLimitError as e:
+            error_message = "OpenAI API rate limit exceeded or credits exhausted. Please check your usage and limits."
+            print(f"\n[red]{error_message}[/red]")
+            return
+        except AuthenticationError as e:
+            error_message = "OpenAI API authentication failed. Please check your API key."
+            print(f"\n[red]{error_message}[/red]")
+            return
+        except APIError as e:
+            error_message = f"OpenAI API error: {str(e)}"
+            print(f"\n[red]{error_message}[/red]")
+            return
+        except Exception as e:
+            error_message = f"Unexpected error: {str(e)}"
+            print(f"\n[red]{error_message}[/red]")
+            return
 
 
 if __name__ == "__main__": # pragma: no cover

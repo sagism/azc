@@ -1,7 +1,18 @@
 """ Base class for LLM providers """
 import os
 from dotenv import load_dotenv
-load_dotenv(os.path.expanduser("~/.config/.env" if os .path.exists(os.path.expanduser("~/.config")) else "~/.env"))
+
+# Only load environment once
+_env_loaded = False
+def ensure_env_loaded():
+    global _env_loaded
+    if not _env_loaded:
+        env_path = os.path.expanduser("~/.config/.env" if os.path.exists(os.path.expanduser("~/.config")) else "~/.env")
+        print(f"Environment: {os.path.abspath(env_path)}")
+        load_dotenv(env_path)
+        _env_loaded = True
+
+ensure_env_loaded()
 
 
 class LLMProvider:

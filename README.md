@@ -43,13 +43,16 @@ A command-line tool for interacting with LLMs.
 
     pip install azc
 
-if you want to make it available system-wide (any folder, without having to activate your python environment), you can install it system-wide:
+if you want to make it available system-wide (without having to activate your python environment or cd to the project folder), you can install it system-wide:
 
     echo 'alias azc="$HOME/projects/azc/env/bin/azc"' >> ~/.bashrc
 
 - Replace `~/.bashrc` with the shell you are using (zsh, bash, etc.)
 - Replace `$HOME/projects/azc/env/bin/azc` with the path to the azc executable
 - On Windows, you can add the path to your PATH environment variable (ask your nearest LLM for more details)
+
+You can also build an executable and place it in a central location using pyinstaller.
+I am using `build_exe.sh` to do this on my mac. It installs the `az` command
 
 # Running
 

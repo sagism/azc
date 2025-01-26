@@ -14,6 +14,9 @@ setup(
     name='azc',
     version='1.2.0',
     packages=find_packages(),
+    package_data={
+        'az': ['config.json'],
+    },
     install_requires=open('requirements.txt').read().splitlines(),
     author='Sagi Smolarski',
     author_email='sagism@gmail.com',

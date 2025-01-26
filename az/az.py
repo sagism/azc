@@ -73,7 +73,11 @@ providers = []
 def discover_providers():
     """Discover providers based on config file"""
     available_providers = {}
-    provider_configs = config.get("default-models", {})
+    provider_configs = config.get("default-models", {}) if config else {}
+    
+    if not provider_configs:
+        print("Warning: No provider configurations found in config")
+        return available_providers
     
     for provider_name in provider_configs:
         try:
@@ -84,16 +88,28 @@ def discover_providers():
             client_class = getattr(module, class_name)
             available_providers[provider_name] = client_class
             
-            # For backwards compatibility with existing provider list
-            if f"XAI_API_KEY" in os.environ and provider_name == "grok":
+            # Check for environment variables
+            if provider_name == "grok" and "XAI_API_KEY" in os.environ:
+                providers.append(provider_name)
+            elif provider_name == "ollama" and "OLLAMA_URL" in os.environ:
                 providers.append(provider_name)
             elif f"{provider_name.upper()}_API_KEY" in os.environ:
-                providers.append(provider_name)
-            elif f"{provider_name.upper()}_URL" in os.environ:
                 providers.append(provider_name)
                 
         except Exception as e:
             print(f"Warning: Could not load provider {provider_name}: {e}")
+    
+    if not providers:
+        # Make the error message more helpful
+        print("No provider API keys found in environment.")
+        print("Please set one or more of the following in your .env file:")
+        for provider in available_providers.keys():
+            if provider == "grok":
+                print(f"  XAI_API_KEY for {provider}")
+            elif provider == "ollama":
+                print(f"  OLLAMA_URL for {provider}")
+            else:
+                print(f"  {provider.upper()}_API_KEY for {provider}")
     
     return available_providers
 
@@ -136,7 +152,10 @@ def provider_factory(provider_hint):
     if not provider_found:
         raise ValueError(f"Cannot find provider with <{provider_hint}>")
     
-    return PROVIDERS[provider_full_name](config, primer=primer())
+    return PROVIDERS[provider_full_name]({
+        **config,
+        "primer": primer()
+    })
 
 
 
@@ -259,6 +278,7 @@ def main(initial_prompt=None):
                 continue
 
             if user_input.strip().lower() in ('n'):
+                console.print(f'new chat with {client}')
                 client.new_chat()
                 continue
 

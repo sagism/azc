@@ -1,19 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
-import os
-import glob
 
-block_cipher = None
-
-# Automatically discover all provider modules
-provider_files = glob.glob('az/*_provider.py')
-hidden_imports = [f'az.{os.path.basename(f)[:-3]}' for f in provider_files]
 
 a = Analysis(
     ['az/az.py'],
     pathex=[],
     binaries=[],
     datas=[],
-    hiddenimports=hidden_imports,
+    hiddenimports=['az.anthropic_provider', 'az.gemini_provider', 'az.grok_provider', 'az.llm_provider', 'az.ollama_provider', 'az.openai_provider'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -31,7 +24,7 @@ exe = EXE(
     name='az',
     debug=False,
     bootloader_ignore_signals=False,
-    strip=True,
+    strip=False,
     upx=True,
     console=True,
     disable_windowed_traceback=False,
@@ -44,7 +37,7 @@ coll = COLLECT(
     exe,
     a.binaries,
     a.datas,
-    strip=True,
+    strip=False,
     upx=True,
     upx_exclude=[],
     name='az',
