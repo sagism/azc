@@ -119,17 +119,34 @@ PROVIDERS = discover_providers()
 
 class CommandsCompleter(Completer):
     """
-    This completer handles the 'p' command for changing provider
+    This completer handles commands and model names
     """
     def get_completions(self, document, complete_event):
         text = document.current_line
+        
+        # Provider completion (existing functionality)
         if text.startswith('p '):   
             for provider in providers:
                 yield Completion(
-                f'p {provider}', start_position=-1000,
-                display=HTML(f'{provider}'),
-                style='bg:ansiyellow')
-        
+                    f'p {provider}', 
+                    start_position=-len(text),
+                    display=HTML(f'{provider}'),
+                    style='bg:ansiyellow'
+                )
+                
+        # Model completion (new functionality)
+        elif text.startswith('m '):
+            prefix = text[len('m '):].lower()
+            if client and hasattr(client, 'models'):
+                for model in client.models:
+                    if model.lower().startswith(prefix):
+                        yield Completion(
+                            model,
+                            start_position=-len(prefix),
+                            display=HTML(f'{model}'),
+                            style='bg:ansiblue'
+                        )
+
 completer = CommandsCompleter()
 
 
@@ -152,10 +169,26 @@ def provider_factory(provider_hint):
     if not provider_found:
         raise ValueError(f"Cannot find provider with <{provider_hint}>")
     
-    return PROVIDERS[provider_full_name]({
+    # Get the default model for this provider from config
+    provider_config = config.get("default-models", {}).get(provider_full_name, {})
+    configured_model = provider_config.get("model")
+    
+    client = PROVIDERS[provider_full_name]({
         **config,
-        "primer": primer()
+        "primer": primer(),
     })
+    
+    # Set the model if specified in config, ensuring exact match
+    if configured_model:
+        if configured_model not in client.models:
+            console.print(f"[yellow]Warning: Configured model '{configured_model}' not found in available models for {provider_full_name}[/]")
+            console.print(f"Available models:")
+            for model in client.models:
+                console.print(f"  - {model}")
+        else:
+            client.model = configured_model
+            
+    return client
 
 
 
@@ -175,11 +208,11 @@ Just type your message and press enter to start a chat.
 
 | Command | Description |
 |---------|-------------|
-| l       | List models |
-| r       | Refresh models |
-| n       | New chat ( )   |
+| l       | List models for current provider |
+| r       | Refresh models for current provider |
+| n       | New chat (forget history)   |
 | ? or h  | Help (this screen) |
-| m       | Change model |
+| m       | Change model for current provider |
 | p provider_name | Change provider (p and space trigger autocomplete) |
 | ctrl-n  | New line |
 """
@@ -187,6 +220,9 @@ Just type your message and press enter to start a chat.
 
 
 def main(initial_prompt=None):
+    """Main entry point"""
+    global client, config, PROVIDERS
+    
     if len(providers) == 0:
         console.print('no providers found, exiting, please set one of the following: OPENAI_API_KEY, OLLAMA_URL, ANTHROPIC_API_KEY, GEMINI_API_KEY in a .env file')
         return
@@ -290,14 +326,18 @@ def main(initial_prompt=None):
                 console.print(Markdown(help()))
                 continue
 
-            if user_input.strip().lower() in ('m'):
-                model = session.prompt(
-                    HTML(f'<ansicyan>model (partial name okay): </ansicyan> '),
-                    multiline=False,
-                    is_password=False
-                )
-                client.model = model
-                continue
+            if user_input.startswith('m '):
+                model_name = user_input.split(' ')[1]
+                if model_name:
+                    try:
+                        client.model = model_name
+                        console.print(f'using: {client.provider}:{client.model}')
+                    except ValueError as e:
+                        console.print(f"[red]Error: {str(e)}[/]")
+                    continue
+                else:
+                    console.print("Model selection cancelled")
+            
 
             if user_input.startswith('p '):
                 provider_name = user_input.split(' ')[1]

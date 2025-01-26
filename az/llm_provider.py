@@ -44,12 +44,13 @@ class LLMProvider:
 
     @model.setter
     def model(self, value):
-        for m in self.models:
-            if value in m:
-                self._model = m
-                return
-        raise ValueError(f"Model {value} not found for provider {self.provider}")
-    
+        """Set model, requiring exact match"""
+        if value not in self.models:
+            # Check for exact match only
+            raise ValueError(f"Model '{value}' not found for provider {self.provider}. Available models:\n" + 
+                           "\n".join(f"  - {m}" for m in self.models))
+        self._model = value
+
     def new_chat(self, primer=None):
         """ Create a new chat (erase messages history)
         Note that the semantics of the primer is that we reuse the original primer
