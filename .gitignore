@@ -15,3 +15,4 @@ Dev Todo.txt
 internal
 htmlcov
 .coverage
+capture_*.json

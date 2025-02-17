@@ -5,6 +5,8 @@ import os
 import shutil
 import argparse
 import importlib
+import json
+from datetime import datetime
 
 # a mix of rich and prompt_toolkit seem to hit the sweet spot for terminal UI interactivity
 from rich.console import Console
@@ -25,6 +27,7 @@ import readline # needed for prompt editing
 
 from az.utils import number_to_ordinal
 from az.config import load_config, default_model, default_provider
+from az.chat_capture import ChatCapture
 
 HISTORY_FILE_NAME = os.path.expanduser("~/.config/.azc_history" if os.path.exists(os.path.expanduser("~/.config")) else "~/.azc_history")
 
@@ -213,6 +216,7 @@ Just type your message and press enter to start a chat.
 | n       | New chat (forget history)   |
 | ? or h  | Help (this screen) |
 | m       | Change model for current provider |
+| c       | Start/stop chat capture to file |
 | p provider_name | Change provider (p and space trigger autocomplete) |
 | ctrl-n  | New line |
 """
@@ -278,6 +282,8 @@ def main(initial_prompt=None):
 
     our_history = FilteredHistory(HISTORY_FILE_NAME)
     session = PromptSession(history=our_history, input=get_input())
+
+    chat_capture = ChatCapture()
 
     done=False
     
@@ -348,6 +354,13 @@ def main(initial_prompt=None):
                     console.print(f'[red]error: {e}[/]')
                 continue
 
+            elif user_input.strip().lower() == 'c':
+                if chat_capture.is_capturing:
+                    chat_capture.stop()
+                else:
+                    chat_capture.start()
+                continue
+
             title = f"{client} ({number_to_ordinal(client.n_user_messages()+1)} message)" if not args.batch else None
 
             assistant_panel = Panel(
@@ -376,6 +389,26 @@ def main(initial_prompt=None):
                         box=EMPTY
                     )
                     live.update(new_panel, refresh=False)
+
+            # Handle chat response capture
+            if not is_command(user_input) and chat_capture.is_capturing:
+                chat_capture.add_message(
+                    role="user",
+                    text=user_input,
+                    provider=client.provider,
+                    model=client.model,
+                    tokens=0
+                )
+                
+                # Capture assistant response after it's complete
+                chat_capture.add_message(
+                    role="assistant",
+                    text=current_message,
+                    provider=client.provider,
+                    model=client.model,
+                    tokens=client.last_token_count if hasattr(client, 'last_token_count') else 0,
+                    is_markdown=hasattr(client, 'markdown_output') and client.markdown_output
+                )
 
     except KeyboardInterrupt:
         done = True
