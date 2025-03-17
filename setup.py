@@ -12,7 +12,7 @@ readme_content_without_images = remove_images_from_markdown(readme_content)
 
 setup(
     name='azc',
-    version='1.3.0',
+    version='1.4.0',
     packages=find_packages(),
     package_data={
         'az': ['config.json'],
