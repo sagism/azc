@@ -9,14 +9,13 @@ class AnthropicClient(LLMProvider):
         self.client = anthropic.Anthropic()
         self.models = self.list_models()
         self.config = config
-        self.model = self.config.get("anthropic", {}).get("model", "claude-3-5-sonnet")
+        self.model = self.config.get("anthropic", self.models[0])
         self.messages = []
         self.primer = primer
           
 
     def list_models(self):
-        """ No way to list models in anthropic? """
-        return ["claude-3-5-sonnet-20240620"]
+        return [ model.id for model in self.client.models.list(limit=20) ]
     
 
     def chat(self, message):
@@ -42,6 +41,9 @@ class AnthropicClient(LLMProvider):
 
 if __name__ == "__main__": # pragma: no cover
     client = AnthropicClient(primer="Limit your response to 300 characters or less")
+    print("models:")
+    print(client.list_models())
+
     for text in client.chat("Provide a list of 7 things I could do when I have a spare hour at home, which won't waste my time?"):
         print(text, end="", flush=True)
     print()
